@@ -372,6 +372,8 @@ const ActiveClientsPage = () => {
                       statusClass = "row-status-active";
                     } else if (client.status === "completed") {
                       statusClass = "row-status-completed";
+                    } else if (client.formType === "cpi") {
+                      statusClass = "row-status-comercial";
                     }
                     return (
                       <tr key={idx} className={statusClass}>

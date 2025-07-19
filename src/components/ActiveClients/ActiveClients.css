@@ -207,6 +207,10 @@ tr.row-status-completed>td{
     color: #ffffff;
     text-decoration: line-through;
 }
+tr.row-status-comercial>td{
+    background-color: rgba(250, 234, 18, 0.35) !important;
+     color: var(--primary-dark);
+}
 
 /* Action Buttons */
 .action-btn {
