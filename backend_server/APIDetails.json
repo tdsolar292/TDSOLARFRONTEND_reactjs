@@ -1,0 +1,438 @@
+[
+  {
+    "name": "Proforma Invoice Form Submission",//-----DONE
+    "url": "https://script.google.com/macros/s/AKfycbwMZQy7mYpEIzCJUoqztpS2kg3LO8XIbCl196-BDkZMJMNXqLenSSG19-LZgmpTpbdmlw/exec",
+    "method": "POST",
+    "description": "Submits proforma invoice form data to Google Sheets and triggers PDF/email generation.",
+    "usedIn": [
+      "src/components/ProformaInvoice/ProformaInvoice.jsx"
+    ],
+    "payloadExample": {
+        "clientId": "Sc9999999",
+        "clientEmail": "tdsolar9@gmail.com",
+        "clientMobile": "9999966666",
+        "clientName": "TEST TEST Client Name Test",
+        "clientIdType": "existing",
+        "systemType": "Ongrid Solar System",
+        "systemConnection": "With Net Metering",
+        "gridType": "",
+        "brand": "UTL/LOOM/WEBSOL",
+        "type": "NON-DCR",
+        "moduleTechnology": "MONO-PERC Half-Cut",
+        "moduleWatt": 535,
+        "quantity": 6,
+        "freeMaterial": "Full Setup Free with Installation Approx Value Rs. 5000",
+        "inverterBrand": "LUMINOUS/HAVELS/MIRCROTECK/LOOM",
+        "inverterPower": 3.3,
+        "totalProjectValue": 300000,
+        "supplyPercentage": 80,
+        "applicationCost": 590,
+        "meterCost": 11600,
+        "caCertificate": 2000,
+        "fitnessCertificate": 2832,
+        "extraHeightTotalCost": 800,
+        "transportationCost": 1100,
+        "miscellaneousExpenses": 1200,
+        "discount": "",
+        "electricSupply": "WBSEDCL",
+        "batteryBrand": "EXCIDE",
+        "batteryType": "Li-Battery - 24V",
+        "batteryCapacity": "100 AH",
+        "batteryQuantity": 5,
+        "materialDiscount": 500,
+        "installationDiscount": 1500,
+        "erectionDiscount": 2000,
+        "netMeteringDiscount": 2500,
+        "liaisonCost": 1300,
+        "invoiceGeneratedBy": "Other",
+        "PVTotalRatingKW": 3.21,
+        "formType": "proformaInvoice"
+}
+  },
+  {
+    "name": "Get Proforma Invoice Details",//-----DONE
+    "url": "https://script.google.com/macros/s/AKfycbwMZQy7mYpEIzCJUoqztpS2kg3LO8XIbCl196-BDkZMJMNXqLenSSG19-LZgmpTpbdmlw/exec",
+    "method": "GET",
+    "description": "Fetches proforma invoice details by clientId or invoice number.",
+    "usedIn": [
+      "src/components/ProformaInvoice/ProformaInvoice.jsx",
+      "src/components/ActiveClients/ActiveClients.jsx"
+    ],
+    "queryParamsExample": {
+      "action": "getRowByInvoiceNumber",
+      "invoiceNumber": "TDPI300"
+    }
+  },
+  {
+    "name": "Get DuplicateProforma Invoice Details",//-----DONE NO Need use search by invoice number
+    "url": "https://script.google.com/macros/s/AKfycbwMZQy7mYpEIzCJUoqztpS2kg3LO8XIbCl196-BDkZMJMNXqLenSSG19-LZgmpTpbdmlw/exec",
+    "method": "GET",
+    "description": "Fetches proforma invoice details by clientId or invoice number.",
+    "usedIn": [
+      "src/components/ProformaInvoice/ProformaInvoice.jsx",
+      "src/components/ActiveClients/ActiveClients.jsx"
+    ],
+    "queryParamsExample": {
+      "action": "getRowByInvoiceNumber",
+      "invoiceNumber": "TDPI300"
+    }
+  },
+  {
+    "name": "Get All Proforma Invoices (with search/pagination)",//-----DONE
+    "url": "https://script.google.com/macros/s/AKfycbwMZQy7mYpEIzCJUoqztpS2kg3LO8XIbCl196-BDkZMJMNXqLenSSG19-LZgmpTpbdmlw/exec",
+    "method": "GET",
+    "description": "Returns paginated/searchable proforma invoice data for dashboard and active clients.",
+    "usedIn": [
+      "src/components/ActiveClients/ActiveClients.jsx"
+    ],
+    "queryParamsExample": {
+      "action": "getAllProformaInvoices",
+      "searchBy": "ClientId",
+      "searchText": "Sc1001",
+      "page": 1,
+      "pageSize": 10
+    }
+  },
+  {
+    "name": "Update Proforma Status",//---DONE http://localhost:5000/api/v1/proformainvoice/updateInvoiceStatus
+    "url": "https://script.google.com/macros/s/AKfycbwMZQy7mYpEIzCJUoqztpS2kg3LO8XIbCl196-BDkZMJMNXqLenSSG19-LZgmpTpbdmlw/exec",
+    "method": "GET",
+    "description": "Updates the status field for a given Proforma Invoice Number (e.g., after payment).",
+    "usedIn": [
+      "src/components/PaymentReceipt/PaymentReceipt.jsx"
+    ],
+    "queryParamsExample": {
+      "action": "updateProformaStatus",
+      "proformaInvoiceNumber": "TDPI300",
+      "status": "active"
+    }
+  },
+  {
+    "name": "Payment Receipt Form Submission",//---DONE  //---http://localhost:5000/api/v1/paymentReceipt/create
+    "url": "https://script.google.com/macros/s/AKfycbwA3HTKjs-IGajuqW-7OW7yMOZdyGqJlQDb1-5SxLQV54mYWxJNBp1O8A05LckHBYlhSQ/exec",
+    "method": "POST",
+    "description": "Submits payment receipt form data to Google Sheets and triggers PDF/email generation.",
+    "usedIn": [
+      "src/components/PaymentReceipt/PaymentReceipt.jsx"
+    ],
+    "payloadExample": {
+      "action": "Payment_Receipt_Form",
+      "ClientId": "Sc1001",
+      "Date": "2024-06-01",
+      "Name": "John Doe",
+      "...": "other form fields"
+    }
+  },
+  {
+    "name": "Get Payment Details by Proforma Invoice", // ---DONE
+    
+//http://localhost:5000/api/v1/paymentReceipt/getAll
+//http://localhost:5000/api/v1/paymentReceipt/getAllByInvoiceNumber?invoiceNumber=TDPI336
+    //---DONE
+    "url": "https://script.google.com/macros/s/AKfycbwA3HTKjs-IGajuqW-7OW7yMOZdyGqJlQDb1-5SxLQV54mYWxJNBp1O8A05LckHBYlhSQ/exec",
+    "method": "GET",
+    "description": "Returns all payment receipts for a given Proforma Invoice Number.",
+    "usedIn": [
+      "src/components/PaymentReceipt/PaymentReceipt.jsx",
+      "src/components/GSTInvoice/GSTInvoice.jsx"
+    ],
+    "queryParamsExample": {
+      "action": "getPaymentDetails",
+      "proformaInvoiceNo": "TDPI300"
+    }
+  },
+  {
+    "name": "Commercial Proforma Invoice Submission",//-----DONE
+    "url": "https://script.google.com/macros/s/AKfycbwC1iFgTAYnzl1ngWQozg_fnHmjqiIFk-wjr7ysjUX0SD3WGKTOOepUruU4Vli_980/exec",
+    "method": "POST",
+    "description": "Submits commercial proforma invoice data to Google Sheets and triggers PDF/email generation.",
+    "usedIn": [
+      "src/components/Commercial_Performa_Invoice/CommercialPerforma.jsx"
+    ],
+    "payloadExample": {
+        "ClientId": "Sc4170",
+        "invoiceNumber": "",
+        "ClientEmail": "tdsolar9@gmail.com",
+        "ClientAddress": "7, Haren Mukherjee Rd, Belur, Liluah, Howrah",
+        "ClientState": "West Bengal",
+        "ClientPinCode": "711202",
+        "ClientMobile": "9748640370",
+        "ClientName": "Gurdwara Liluah Belur Sikh Sangat",
+        "proposalDate": "05-07-2025",
+        "hsnsacCode2": "545454",
+        "hsnsacCode2Inverter": "",
+        "hsnsacCode2Solar": "",
+        "systemType": "Ongrid Solar System",
+        "systemConnection": "",
+        "gridType": "",
+        "modQUnit1": "Nos",
+        "modRequired1": true,
+        "invRequired4": true,
+        "modBrand1": "UTL/LOOM/WEBSOL",
+        "modType1": "NON-DCR",
+        "modTech1": "Half-Cut Bi-facial",
+        "modRating1": "540",
+        "modQuantity1": "64",
+        "invBrand4": "UTL/GROWATT/DEYE",
+        "invRating4": "35",
+        "finalPrice": "",
+        "supplyPercentage": "80",
+        "electricSupply": "",
+        "batteryBrand": "",
+        "batteryType": "",
+        "batteryCapacity": "",
+        "batteryQuantity": "",
+        "clientIdType": "temporary",
+        "invoiceGeneratedBy": "WEB-ADMIN",
+        "invQuantity4": "1",
+        "invQUnit4": "No",
+        "pricePerWattIncGst": "38",
+        "mat1Required3": true,
+        "mat1Quantity3": "1",
+        "mat1QUnit3": "Sets",
+        "mat2Required5": true,
+        "mat2Quantity5": "1",
+        "mat2QUnit5": "Sets",
+        "busMcbRequired6": true,
+        "busMcbQuantity6": "1",
+        "busMcbQUnit6": "Sets",
+        "fireERequired7": true,
+        "fireEQuantity7": "1",
+        "fireEQUnit7": "Sets",
+        "autoCleanRequired8": true,
+        "autoCleanQuantity8": "1",
+        "autoCleanQUnit8": "Sets",
+        "stRoofRequired2": false,
+        "stRoofQuantity2": "",
+        "stRoofQUnit2": "Sets",
+        "stTinRequired2": true,
+        "stTinQuantity2": "1",
+        "stTinQUnit2": "",
+        "otp": "9064",
+        "totalKW": "35",
+        "formType": "proformaInvoice"
+    }
+  },
+  {
+    "name": "GST Invoice Submission",//---API is avilable need to test with new PI API
+    "url": "https://script.google.com/macros/s/AKfycbzsQWhQT3OWeam9qqJEDqvWo3lS6-v0W81DC7sRtAEzclfOJtRDhb5ILUfR0q_0PxLZOA/exec",
+    "method": "POST",
+    "description": "Submits GST invoice data to Google Sheets and triggers PDF/email generation.",
+    "usedIn": [
+      "src/components/GSTInvoice/GSTInvoice.jsx"
+    ],
+    "payloadExample": {
+      "PONo": "PO123456",
+      "VendorCode": "TD001",
+      "ClientName": "Test Company Ltd",
+      "...": "other form fields"
+    }
+  }
+]
+
+
+proformaInvoice MODEL
+
+{
+  "otp": "9064",
+  "clientId": "Sc9999999",
+  "clientEmail": "tdsolar9@gmail.com",
+  "systemType": "Ongrid Solar System",
+  "systemConnection": "With Net Metering",
+  "gridType": "",
+  "brand": "UTL/LOOM/WEBSOL",
+  "type": "NON-DCR",
+  "moduleTechnology": "MONO-PERC Half-Cut",
+  "moduleWatt": 535,
+  "quantity": 6,
+  "freeMaterial": "Full Setup Free with Installation Approx Value Rs. 5000",
+  "inverterBrand": "LUMINOUS/HAVELS/MIRCROTECK/LOOM",
+  "inverterPower": 3.3,
+  "totalProjectValue": 300000,
+  "supplyPercentage": 80,
+  "applicationCost": 590,
+  "meterCost": 11600,
+  "caCertificate": 2000,
+  "fitnessCertificate": 2832,
+  "extraHeightTotalCost": 800,
+  "transportationCost": 1100,
+  "miscellaneousExpenses": 1200,
+  "discount": "",
+  "electricSupply": "WBSEDCL",
+  "clientMobile": "9999966666",
+  "clientName": "TEST TEST Client Name Test",
+  "batteryBrand": "EXCIDE",
+  "batteryType": "Li-Battery - 24V",
+  "batteryCapacity": "100 AH",
+  "batteryQuantity": 5,
+  "materialDiscount": 500,
+  "installationDiscount": 1500,
+  "erectionDiscount": 2000,
+  "netMeteringDiscount": 2500,
+  "liaisonCost": 1300,
+  "clientIdType": "existing",
+  "invoiceGeneratedBy": "Other",
+  "PVTotalRatingKW": 3.21,
+  "formType": "proformaInvoice"
+}
+
+
+Common Proforma invoice
+
+{
+  "otp": "9064",
+
+  // Client Information
+  "clientId": "Sc9999999",
+  "clientIdType": "existing",
+  "clientName": "TEST TEST Client Name Test",
+  "clientMobile": "9999966666",
+  "clientEmail": "tdsolar9@gmail.com",
+  "clientAddress": "7, Haren Mukherjee Rd, Belur, Liluah, Howrah",
+  "clientState": "West Bengal",
+  "clientPinCode": "711202",
+
+  // Proposal/Invoice Info
+  "formType": "proformaInvoice",
+  "proposalDate": "05-07-2025",
+  "invoiceNumber": "",
+  "invoiceGeneratedBy": "Other",
+
+  // System Configuration
+  "systemType": "Ongrid Solar System",
+  "systemConnection": "With Net Metering",
+  "gridType": "",
+  "electricSupply": "WBSEDCL",
+
+  // Module Details
+  "brand": "UTL/LOOM/WEBSOL",
+  "type": "NON-DCR",
+  "moduleTechnology": "MONO-PERC Half-Cut",
+  "moduleWatt": 535,
+  "quantity": 6,
+  "modQUnit1": "Nos",
+  "modRequired1": true,
+  "modBrand1": "UTL/LOOM/WEBSOL",
+  "modType1": "NON-DCR",
+  "modTech1": "Half-Cut Bi-facial",
+  "modRating1": "540",
+  "modQuantity1": "64",
+
+  // Inverter Details
+  "inverterBrand": "LUMINOUS/HAVELS/MIRCROTECK/LOOM",
+  "inverterPower": 3.3,
+  "invBrand4": "UTL/GROWATT/DEYE",
+  "invRating4": "35",
+  "invQuantity4": "1",
+  "invQUnit4": "No",
+  "invRequired4": true,
+
+  // Battery Details
+  "batteryBrand": "EXCIDE",
+  "batteryType": "Li-Battery - 24V",
+  "batteryCapacity": "100 AH",
+  "batteryQuantity": 5,
+
+  // Costing & Charges
+  "totalProjectValue": 300000,
+  "supplyPercentage": "80",
+  "applicationCost": 590,
+  "meterCost": 11600,
+  "caCertificate": 2000,
+  "fitnessCertificate": 2832,
+  "extraHeightTotalCost": 800,
+  "transportationCost": 1100,
+  "miscellaneousExpenses": 1200,
+  "liaisonCost": 1300,
+  "finalPrice": "",
+  "pricePerWattIncGst": "38",
+
+  // Discounts
+  "discount": "",
+  "materialDiscount": 500,
+  "installationDiscount": 1500,
+  "erectionDiscount": 2000,
+  "netMeteringDiscount": 2500,
+
+  // Rating
+  "PVTotalRatingKW": 3.21,
+  "totalKW": "35",
+
+  // Freebies / Extra Items
+  "freeMaterial": "Full Setup Free with Installation Approx Value Rs. 5000",
+
+  // HSNSAC Codes
+  "hsnsacCode2": "545454",
+  "hsnsacCode2Inverter": "",
+  "hsnsacCode2Solar": "",
+
+  // Additional Materials
+  "mat1Required3": true,
+  "mat1Quantity3": "1",
+  "mat1QUnit3": "Sets",
+  "mat2Required5": true,
+  "mat2Quantity5": "1",
+  "mat2QUnit5": "Sets",
+  "busMcbRequired6": true,
+  "busMcbQuantity6": "1",
+  "busMcbQUnit6": "Sets",
+  "fireERequired7": true,
+  "fireEQuantity7": "1",
+  "fireEQUnit7": "Sets",
+  "autoCleanRequired8": true,
+  "autoCleanQuantity8": "1",
+  "autoCleanQUnit8": "Sets",
+
+  // Structure
+  "stRoofRequired2": false,
+  "stRoofQuantity2": "",
+  "stRoofQUnit2": "Sets",
+  "stTinRequired2": true,
+  "stTinQuantity2": "1",
+  "stTinQUnit2": ""
+}
+================= Proforma invoice MODEL END =================
+
+
+
+================Payment Receipt MODEL START================
+http://localhost:5000/api/v1/paymentReceipt/create
+http://localhost:5000/api/v1/paymentReceipt/getAll
+http://localhost:5000/api/v1/paymentReceipt/getAllByInvoiceNumber?invoiceNumber=TDPI336
+
+OLD REQUEST:
+{
+    "action": "Payment_Receipt_Form",
+    "ClientId": "Sc599503",//clientId
+    "Date": "2025-07-09",//paymentDate
+    "Name": "SK Test",//clientName
+    "Address": "26 Elliot Lane , Kolkata 700014",//clientAddress
+    "Mobile": 9999966666,//clientMobile
+    "ReceiptNo": "REC444547",//receiptNo
+    "PaymentDetails": "Advance Payment for Solar System",// paymentDetails
+    "Amount": 1000,//amount
+    "PaymentMode": "UPI",// paymentMode
+    "Email": "tdsolar9@gmail.com",// clientEmail
+    "ProformaInvoiceNo": "TDPI336",// invoiceNumber
+    "ReceiptGeneratedBy": "Web Admin",// receiptGeneratedBy
+    "District": "Kolkata",//REMOVED
+    "State": "West Bengal",//REMOVED
+    "Pin": "700001"//REMOVED
+}
+NEW MODEL:
+{
+    "action": "Payment_Receipt_Form",
+    "clientId": "Sc599503",
+    "paymentDate": "2025-07-09",
+    "clientName": "SK Test",
+    "clientAddress": "26 Elliot Lane , Kolkata 700014",
+    "clientMobile": 9999966666,
+    "receiptNo": "REC444547",
+    "paymentDetails": "Advance Payment for Solar System",
+    "amount": 1000,
+    "paymentMode": "UPI",
+    "clientEmail": "tdsolar9@gmail.com",
+    "invoiceNumber": "TDPI336",
+    "receiptGeneratedBy": "Web Admin"
+}
+

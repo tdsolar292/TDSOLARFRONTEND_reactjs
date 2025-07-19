@@ -1,0 +1,135 @@
+/* Container styling */
+.container {
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+/* Table styling */
+.table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: #00b050;
+  color: white;
+  font-weight: bold;
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Action icons */
+.table td .text-primary {
+  color: #00b050;
+}
+
+.table td .text-danger {
+  color: #dc3545;
+}
+
+.table td a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.table td a:hover {
+  text-decoration: underline;
+}
+
+/* Add Credit button */
+.d-flex .btn-primary {
+  background-color: #00b050;
+  border: none;
+  font-size: 16px;
+  padding: 8px 16px;
+}
+
+.d-flex .btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Pagination styling */
+.pagination {
+  margin-top: 20px;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #00b050;
+  border-color: #00b050;
+  color: white;
+}
+
+.pagination .page-link {
+  color: #00b050;
+}
+
+.pagination .page-link:hover {
+  background-color: #e9ecef;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    max-width: 100%;
+  }
+
+  .table {
+    font-size: 16px !important;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px;
+    font-size: 16px !important;
+  }
+
+  .d-flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .d-flex .btn-primary {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .pagination {
+    font-size: 16px;
+  }
+
+  /* Make the table scrollable horizontally */
+  .table-responsive {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .table {
+    font-size: 14px !important;
+  }
+
+  .table th,
+  .table td {
+    padding: 6px;
+    font-size: 14px !important;
+  }
+
+  .pagination {
+    font-size: 14px !important;
+  }
+}

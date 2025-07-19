@@ -1,0 +1,56 @@
+.proforma-form .row {
+    border-bottom: 1px solid #c7c7c7;
+    margin-bottom: 5px;
+    background-color: #0dcaf026;
+  }
+  
+  .client-output {
+    margin-top: 20px;
+    padding: 10px;
+    min-height: 41px;
+    border: 1px solid #ccc;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  .payment-receipt-form .form-label {
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+  }
+  
+  .payment-receipt-form .input-group-text {
+    background: #f4f7fe;
+    color: #2962ff;
+    font-size: 1.1rem;
+    border-radius: 0.5rem 0 0 0.5rem;
+    border: none;
+  }
+  
+  .payment-receipt-form .form-control.payment-input,
+  .payment-receipt-form .form-select.payment-input {
+    background: #f8fafc;
+    border-radius: 0 0.5rem 0.5rem 0;
+    border: none;
+    box-shadow: none;
+    font-size: 1rem;
+    transition: box-shadow 0.2s;
+  }
+  
+  .payment-receipt-form .form-control.payment-input:focus,
+  .payment-receipt-form .form-select.payment-input:focus {
+    box-shadow: 0 0 0 2px #2962ff33;
+    background: #e3edfd;
+  }
+  
+  .payment-receipt-form .input-group {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e3e8ee;
+  }
+  
+  .payment-receipt-form .modal-footer {
+    border-top: none;
+    padding-top: 1.5rem;
+  }
+
