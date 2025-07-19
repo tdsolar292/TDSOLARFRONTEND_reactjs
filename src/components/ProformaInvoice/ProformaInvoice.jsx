@@ -23,34 +23,34 @@ const ProformaInvoice = ({ show, handleClose }) => {
       brand: '',
       type: '',
       moduleTechnology: '',
-      moduleWatt: Number,
-      quantity: Number,
+      moduleWatt: 0,
+      quantity: 0,
       freeMaterial: '',
       inverterBrand: '',
       inverterPower: '',
       inverterQuantity: 1,
-      totalProjectValue: Number,
-      supplyPercentage: Number,
+      totalProjectValue: 0,
+      supplyPercentage: 0,
       applicationCost: 590,
-      meterCost: Number,
+      meterCost: 0,
       caCertificate: 2000,
       fitnessCertificate: 2832,
-      extraHeightTotalCost: Number,
-      transportationCost: Number,
-      miscellaneousExpenses: Number,
+      extraHeightTotalCost: 0,
+      transportationCost: 0,
+      miscellaneousExpenses: 0,
       electricSupply: '',
       batteryBrand: '',
       batteryType: '',
       batteryCapacity:'' ,
-      batteryQuantity: '',
-      materialDiscount: Number,
-      installationDiscount: Number,
-      erectionDiscount: Number,
-      netMeteringDiscount : Number,
-      liaisonCost: Number,
+      batteryQuantity: 0,
+      materialDiscount: 0,
+      installationDiscount: 0,
+      erectionDiscount: 0,
+      netMeteringDiscount : 0,
+      liaisonCost: 0,
       clientIdType: 'existing', // Default set to "existing"
       invoiceGeneratedBy: '',
-      otp: "9064",
+      otp: "",
       status: "",
       formType: 'dpi',// 'dpi' Domestric Proforma Invoice
       invoiceNumber: '', // Added invoiceNumber to formData
@@ -91,10 +91,10 @@ const ProformaInvoice = ({ show, handleClose }) => {
       transportationCost: 3000,
       miscellaneousExpenses: 1000,
       electricSupply: 'CESC',
-      batteryBrand: 'LUMINOUS',
-      batteryType: 'C10 Lead Acid Battery - 12V',
-      batteryCapacity: '100 AH',
-      batteryQuantity: 2,
+      batteryBrand: '',
+      batteryType: '',
+      batteryCapacity: '',
+      batteryQuantity: 0,
       materialDiscount: 1000,
       installationDiscount: 1500,
       erectionDiscount: 2000,
@@ -113,7 +113,7 @@ const ProformaInvoice = ({ show, handleClose }) => {
   // Call setDummyData when the component is mounted
   useEffect(() => {
     if (window.location.hostname === 'localhost') {
-      setDummyData();
+      //setDummyData();
     } 
   }, []);
 
@@ -129,7 +129,7 @@ const ProformaInvoice = ({ show, handleClose }) => {
           batteryBrand: "NA", // Auto-select NA
           batteryType: "NA",  // Auto-select NA
           batteryCapacity: "NA", // Auto-select NA
-          batteryQuantity: "NA", // Auto-select NA
+          batteryQuantity: 0, // Auto-select NA
         };
       }
 
@@ -207,40 +207,44 @@ const handleSubmit_MERN = async (e) => {
       clientAddress:'',
       clientState:'',
       clientPinCode:'',
+      proposalDate: '', // Default to today's date
       systemType: '',
       systemConnection: '',
       gridType: '',
       brand: '',
       type: '',
       moduleTechnology: '',
-      moduleWatt: '',
-      quantity: '',
+      moduleWatt: 0,
+      quantity: 0,
       freeMaterial: '',
       inverterBrand: '',
       inverterPower: '',
-      totalProjectValue: '',
-      supplyPercentage: '',
+      inverterQuantity: 1,
+      totalProjectValue: 0,
+      supplyPercentage: 0,
       applicationCost: 590,
-      meterCost: 2000,
+      meterCost: 0,
       caCertificate: 2000,
       fitnessCertificate: 2832,
-      extraHeightTotalCost: '',
-      transportationCost: '',
-      miscellaneousExpenses: '',
+      extraHeightTotalCost: 0,
+      transportationCost: 0,
+      miscellaneousExpenses: 0,
       electricSupply: '',
       batteryBrand: '',
       batteryType: '',
-      batteryCapacity: '',
-      batteryQuantity: '',
-      materialDiscount: '',
-      installationDiscount: '',
-      erectionDiscount: '',
-      netMeteringDiscount : '',
-      liaisonCost: '',
+      batteryCapacity:'' ,
+      batteryQuantity: 0,
+      materialDiscount: 0,
+      installationDiscount: 0,
+      erectionDiscount: 0,
+      netMeteringDiscount : 0,
+      liaisonCost: 0,
       clientIdType: 'existing', // Default set to "existing"
       invoiceGeneratedBy: '',
-      inverterQuantity:1,
-      otp: '',
+      otp: "",
+      status: "",
+      formType: 'dpi',// 'dpi' Domestric Proforma Invoice
+      invoiceNumber: '', // Added invoiceNumber to formData
     });
     setClientData('');
     setStatus('');
