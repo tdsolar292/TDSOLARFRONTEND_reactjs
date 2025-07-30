@@ -103,7 +103,8 @@ const ActiveClientsPage = () => {
   const [paymentRowData, setPaymentRowData] = useState(null);
   const [showGSTInvoice, setShowGSTInvoice] = useState(false);
   const [gstInvoiceRowData, setGstInvoiceRowData] = useState(null);
-   const [loadingId, setLoadingId] = useState(null);
+  const [loadingId, setLoadingId] = useState(null);
+  const [showAmounts, setShowAmounts] = useState(false); // NEW
 
   // Digital clock state
   const [now, setNow] = useState(new Date());
@@ -225,6 +226,32 @@ const ActiveClientsPage = () => {
     setShowGSTInvoice(true);
   };
 
+  // Handler for card click
+  const handleCardClick = (card) => {
+    if (
+      card.label === "Total Proforma Amount" ||
+      card.label === "Total Payment Received"
+    ) {
+      if (!showAmounts) {
+        const code = window.prompt("Enter 4-digit code to view amount:");
+        if (code === "9064") {
+          setShowAmounts(true);
+        } else {
+          alert("Incorrect code.");
+        }
+      }
+    } else if (card.label === "Total Proforma Generated") {
+      setfilterBy("");
+      fetchData(1, "", "", "");
+    } else if (card.label === "Active Clients") {
+      setfilterBy("active");
+      fetchData(1, "", "", "active");
+    } else if (card.label === "Projects Completed") {
+      setfilterBy("completed");
+      fetchData(1, "", "", "completed");
+    }
+  };
+
   return (
     
     <div className="container-fluid active-client-box active-clients-bg position-relative">
@@ -309,16 +336,16 @@ const ActiveClientsPage = () => {
                     overflow: "hidden"
                   }}
                   key={idx}
-                 onClick={() => {
-                  card.label === 'Total Proforma Generated' ? (setfilterBy(''),fetchData(1, '', '','' )) : 
-                  card.label === 'Active Clients' ? (setfilterBy('active'),fetchData(1, '', '','active' )): 
-                  card.label === 'Projects Completed' ? (setfilterBy('completed'),fetchData(1, '', '','completed' )): null}
-                }
+                  onClick={() => handleCardClick(card)} // CHANGED
                 >
                   <div className="card-body pb-2">
                     <div className="d-flex align-items-start justify-content-between">
                       <div>
-                        <div className="stat-value" style={{ color: card.color }}>{card.value}</div>
+                        <div className="stat-value" style={{ color: card.color }}>
+                          {(card.label === "Total Proforma Amount" || card.label === "Total Payment Received")
+                            ? (showAmounts ? card.value : "****")
+                            : card.value}
+                        </div>
                         <div className="stat-label">{card.label}</div>
                       </div>
                       <i className={`bi ${card.icon} fs-2`} style={{ color: card.color }}></i>
