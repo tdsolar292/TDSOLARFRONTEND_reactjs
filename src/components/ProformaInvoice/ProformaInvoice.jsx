@@ -14,9 +14,9 @@ const ProformaInvoice = ({ show, handleClose }) => {
       clientMobile:'',
       clientName:'',
       clientAddress:'',
-      clientState:'',
+      clientState:'West Bengal',
       clientPinCode:'',
-      proposalDate: '', // Default to today's date
+      proposalDate: formatDateDDMMYYYY(new Date()), // Default to today's date
       systemType: '',
       systemConnection: '',
       gridType: '',
@@ -52,7 +52,6 @@ const ProformaInvoice = ({ show, handleClose }) => {
       invoiceGeneratedBy: '',
       otp: "",
       status: "",
-      formType: 'dpi',// 'dpi' Domestric Proforma Invoice
       invoiceNumber: '', // Added invoiceNumber to formData
     });
   const [clientData, setClientData] = useState('');
@@ -104,7 +103,6 @@ const ProformaInvoice = ({ show, handleClose }) => {
       invoiceGeneratedBy: 'WEB-ADMIN',
       otp: "9064",
       status: "",
-      formType: 'dpi',// 'dpi' Domestric Proforma Invoice
       invoiceNumber: '',
       inverterQuantity: 1,
     });
@@ -205,9 +203,9 @@ const handleSubmit_MERN = async (e) => {
       clientMobile:'',
       clientName:'',
       clientAddress:'',
-      clientState:'',
+      clientState:'West Bengal',
       clientPinCode:'',
-      proposalDate: '', // Default to today's date
+      proposalDate: formatDateDDMMYYYY(new Date()), // Default to today's date
       systemType: '',
       systemConnection: '',
       gridType: '',
@@ -243,7 +241,6 @@ const handleSubmit_MERN = async (e) => {
       invoiceGeneratedBy: '',
       otp: "",
       status: "",
-      formType: 'dpi',// 'dpi' Domestric Proforma Invoice
       invoiceNumber: '', // Added invoiceNumber to formData
     });
     setClientData('');

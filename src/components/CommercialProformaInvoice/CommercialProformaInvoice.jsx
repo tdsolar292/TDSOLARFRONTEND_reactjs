@@ -4,6 +4,7 @@ import { Modal, Form } from "react-bootstrap";
 import "./CommercialProformaInvoice.css";
 import axios from "axios";
 import config from "../../config";
+import { formatDateDDMMYYYY } from '../common/common.jsx';
 
 
 const CommercialPerforma = ({ show, handleClose }) => {
@@ -56,7 +57,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
    clientIdType: "existing", // Default set to "existing"
    clientMobile: "",
    clientName: "",
-   proposalDate: "",
+   proposalDate: formatDateDDMMYYYY(new Date()), // Default to today's date
    hsnsacCode2: "",
    systemType: "",
    systemConnection: "",
@@ -66,8 +67,8 @@ const CommercialPerforma = ({ show, handleClose }) => {
    brand: "",
    type: "",
    moduleTechnology: "",
-   moduleWatt: "",
-   quantity: "",
+   moduleWatt: 0,
+   quantity: 0,
    //Inverter
    invRequired4 : true,
    inverterBrand: "",
@@ -81,11 +82,11 @@ const CommercialPerforma = ({ show, handleClose }) => {
    batteryBrand: "",
    batteryType: "",
    batteryCapacity: "",
-   batteryQuantity: "",
+   batteryQuantity: 0,
    hsnsacCode2Solar: "",
    invoiceGeneratedBy: "",
    
-   pricePerWattIncGst: 38,
+   pricePerWattIncGst: 0,
    mat1Required3: true,
    mat2Required5: true,
    busMcbRequired6: true,
@@ -94,6 +95,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
    stRoofRequired2: true,
    stTinRequired2: false,
    otp: "",
+   mat1DCCableMaterial:"Copper" //Dropdown Field "Copper","Aluminium"
  });
 
 
@@ -210,50 +212,54 @@ const CommercialPerforma = ({ show, handleClose }) => {
 
  const resetForm = () => {
    setFormData({
-     clientId: "",
-     invoiceNumber: "",
-     clientEmail: "",
-     clientAddress: "",
-     clientState: "West Bengal", // Default set to West Bengal
-     clientPinCode: "",
-     proposalDate: "",
-     hsnsacCode2: "",
-     hsnsacCode2Inverter: "",
-     hsnsacCode2Solar: "",
-     systemType: "",
-     systemConnection: "",
-     gridType: "",
-     invRequired4,
-     brand: "",
-     type: "",
-     moduleTechnology: "",
-     moduleWatt: "",
-     quantity: "",
-     inverterBrand: "",
-     inverterPower: "",
-     supplyPercentage: "",
-     electricSupply: "",
-     clientMobile: "",
-     clientName: "",
-     batteryBrand: "",
-     batteryRequired9: false,
-     batteryType: "",
-     batteryCapacity: "",
-     batteryQuantity: "",
-     clientIdType: "existing", // Default set to "existing"
-     invoiceGeneratedBy: "",
-     inverterQuantity: "",
-     pricePerWattIncGst: 38,
-     mat1Required3: true,
-     mat2Required5: true,
-     busMcbRequired6: true,
-     fireERequired7: true,
-     autoCleanRequired8: true,
-     stRoofRequired2: true, // New field for structure roof required
-     stTinRequired2: false,
-     otp: "",
-     //NEW
-     mat1DCCableMaterial:"Copper" //Dropdown Field "Copper","Aluminium"
+    clientId: "",
+    invoiceNumber: "",
+    clientEmail: "",
+    clientAddress: "",
+    clientState: "West Bengal", // Default set to West Bengal
+    clientPinCode: "",
+    clientIdType: "existing", // Default set to "existing"
+    clientMobile: "",
+    clientName: "",
+    proposalDate: formatDateDDMMYYYY(new Date()), // Default to today's date
+    hsnsacCode2: "",
+    systemType: "",
+    systemConnection: "",
+    gridType: "",
+    modRequired1 : true,
+  
+    brand: "",
+    type: "",
+    moduleTechnology: "",
+    moduleWatt: 0,
+    quantity: 0,
+    //Inverter
+    invRequired4 : true,
+    inverterBrand: "",
+    inverterPower: 0,
+    inverterQuantity: 0,
+    hsnsacCode2Inverter: "",
+    supplyPercentage: "",
+    electricSupply: "",
+    //Batteries
+    batteryRequired9: false,
+    batteryBrand: "",
+    batteryType: "",
+    batteryCapacity: "",
+    batteryQuantity: 0,
+    hsnsacCode2Solar: "",
+    invoiceGeneratedBy: "",
+    
+    pricePerWattIncGst: 0,
+    mat1Required3: true,
+    mat2Required5: true,
+    busMcbRequired6: true,
+    fireERequired7: true,
+    autoCleanRequired8: true,
+    stRoofRequired2: true,
+    stTinRequired2: false,
+    otp: "",
+    mat1DCCableMaterial:"Copper" //Dropdown Field "Copper","Aluminium"
    });
 
 
@@ -357,7 +363,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
 
  useEffect(() => {
    if (window.location.hostname === "localhost") {
-     setDummyData();
+     //setDummyData();
    }
  }, []);
 
@@ -401,6 +407,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  id="clientName"
                  placeholder="Example:Client Name"
                  value={formData.clientName}
+                 required
                  onChange={handleChange}
                />
              </div>
@@ -415,6 +422,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  id="clientMobile"
                  placeholder="Example:9999966666"
                  value={formData.clientMobile}
+                 required
                  onChange={handleChange}
                />
              </div>
@@ -432,6 +440,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  placeholder="Invoice will send here"
                  autoComplete="off"
                  value={formData.clientEmail}
+                 required
                  onChange={handleChange}
                />
              </div>
@@ -447,6 +456,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  placeholder="Invoice will send here"
                  autoComplete="off"
                  value={formData.clientAddress}
+                 required
                  onChange={handleChange}
                />
              </div>
@@ -462,6 +472,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  placeholder="Invoice will send here"
                  autoComplete="off"
                  value={formData.clientState}
+                 required
                  onChange={handleChange}
                />
              </div>
@@ -477,6 +488,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  placeholder="Invoice will send here"
                  autoComplete="off"
                  value={formData.clientPinCode}
+                 required
                  onChange={handleChange}
                />
              </div>
@@ -551,6 +563,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                    }}
                    value={formData.clientId}
                    onChange={handleClientIdChange}
+                   required
                  />
                </div>
              </div>
@@ -575,6 +588,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                    name="systemType"
                    value={formData.systemType}
                    onChange={handleChange}
+                   required
                  >
                    <option value="">Choose...</option>
                    <option value="Ongrid Solar System">
@@ -599,6 +613,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                    name="systemConnection"
                    value={formData.systemConnection}
                    onChange={handleChange}
+                   required
                  >
                    <option value="">Choose...</option>
                    <option value="With Net Metering">With Net Metering</option>
@@ -616,6 +631,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                    name="electricSupply"
                    value={formData.electricSupply || ""}
                   onChange={handleChange}
+                  required
                  >
                    <option value="">Choose...</option>
                    <option value="CESC">CESC</option>
@@ -650,6 +666,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                      name="brand"
                      value={formData.brand}
                      onChange={handleChange}
+                     required
                    >
                      <option value="">Choose...</option>
                      <option value="UTL/LOOM/WEBSOL">UTL/LOOM/WEBSOL</option>
@@ -673,6 +690,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                      name="type"
                      value={formData.type}
                      onChange={handleChange}
+                     required
                    >
                      <option value="">Choose...</option>
                      <option value="DCR">DCR</option>
@@ -689,6 +707,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                      name="moduleTechnology"
                      value={formData.moduleTechnology}
                      onChange={handleChange}
+                     required
                    >
                      <option value="">Choose...</option>
                      <option value="MONO-PERC Half-Cut">
@@ -803,6 +822,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                      name="inverterBrand"
                      value={formData.inverterBrand}
                      onChange={handleChange}
+                     required
                    >
                      <option value="">Choose...</option>
                      <option value="UTL/DEYE/GROWATT">UTL/DEYE/GROWATT</option>
@@ -833,6 +853,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                      name="inverterPower"
                      value={formData.inverterPower}
                      onChange={handleChange}
+                     required
                    >
                      <option value="">Choose...</option>
                      <option value="1">1 KW</option>
@@ -866,6 +887,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                      name="inverterQuantity"
                      value={formData.inverterQuantity}
                      onChange={handleChange}
+                     required
                    >
                      <option value="">Choose...</option>
                      <option value="0">0</option>
@@ -1061,6 +1083,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  id="supplyPercentage"
                  placeholder="Example:80"
                  max="100"
+                 min="1"
                  value={formData.supplyPercentage}
                  onChange={handleChange}
                />
@@ -1077,6 +1100,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                    id="pricePerWattIncGst"
                    placeholder="Price Per Watt (Inc. GST)"
                    value={formData.pricePerWattIncGst }
+                   min="1"
                    onChange={handleChange}
                  />
                </Form.Group>
@@ -1271,6 +1295,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  placeholder="Example:8756"
                  value={formData.otp}
                  onChange={handleChange}
+                 required
                />
              </div>
            </div>

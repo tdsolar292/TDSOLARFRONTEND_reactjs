@@ -20,8 +20,8 @@ const cardDataTemplate = [
     value: 0,
     label: "Total Proforma Generated",
     icon: "bi-archive",
-    color: "var(--primary)",
-    footerBg: "var(--primary)",
+    color: "var(--warning)",
+    footerBg: "var(--warning)",
     footerText: "X Total Proforma Generated",
     footerIcon: "bi-graph-up"
   },
@@ -29,36 +29,36 @@ const cardDataTemplate = [
     value: 0,
     label: "Active Clients",
     icon: "bi-calendar2-week",
-    color: "var(--success)",
-    footerBg: "var(--success)",
+    color: "var(--primary)",
+    footerBg: "var(--primary)",
     footerText: "X Active Clients In Dashboard",
     footerIcon: "bi-graph-up"
   },
   {
     value: 0,
-    label: "Pay Receipts Generated",
+    label: "Projects Completed",
     icon: "bi-file-earmark-text",
     color: "var(--warning)",
-    footerBg: "var(--warning)",
-    footerText: "X Payment Receipts Generated",
+    footerBg: "#f8a3a5",
+    footerText: "X Total Projects Completed",
     footerIcon: "bi-graph-up"
   },
   {
     value: 0,
-    label: "GST Invoice Records",
-    icon: "bi-envelope",
+    label: "Total Proforma Amount",
+    icon: "bi-currency-rupee",
     color: "var(--info)",
     footerBg: "var(--info)",
-    footerText: "X Total GST Invoices Generated",
+    footerText: "Total Proforma Amount",
     footerIcon: "bi-graph-up"
   },
   {
     value: 0,
-    label: "Projects Completed",
-    icon: "bi-envelope",
-    color: "var(--info)",
-    footerBg: "var(--info)",
-    footerText: "X Total Project Completed",
+    label: "Total Payment Received",
+    icon: "bi-currency-rupee",
+    color: "var(--success)",
+    footerBg: "var(--success)",
+    footerText: "X Total Payment Received",
     footerIcon: "bi-graph-up"
   }
 ];
@@ -144,17 +144,18 @@ const ActiveClientsPage = () => {
           value: json.activeClient || 0,
           footerText: `${json.activeClient || 0} Total Active Clients In Dashboard`
         },
+        ,
         { ...cardDataTemplate[2], 
-          value: json.totalPaymentReceiptRecords || 0,
-          footerText: `${json.totalPaymentReceiptRecords || 0} Total Payment Receipts Generated`
-        },
-        { ...cardDataTemplate[3], 
-          value: json.totalGSTInvoiceRecords || 0,
-          footerText: `${json.totalGSTInvoiceRecords || 0} Total GST Invoices Generated`
-        },
-        { ...cardDataTemplate[4], 
           value: json.completedClientRecords || 0,
           footerText: `${json.completedClientRecords || 0} Total Projects Completed`
+        },
+        { ...cardDataTemplate[3], 
+          value: json.totalProformaInvoicesAmount || 0,
+          footerText: ` Total Proforma Amount`
+        },
+        { ...cardDataTemplate[4], 
+          value: json.totalPaymentsReceieved || 0,
+          footerText: ` Total Payment Received`
         }
       ]);
     } catch (err) {
@@ -309,7 +310,9 @@ const ActiveClientsPage = () => {
                   }}
                   key={idx}
                  onClick={() => {
-                  card.label === 'Total Proforma Generated' ? (setfilterBy(''),fetchData(1, '', '','' )) : card.label === 'Active Clients' ? (setfilterBy('active'),fetchData(1, '', '','active' )): null}
+                  card.label === 'Total Proforma Generated' ? (setfilterBy(''),fetchData(1, '', '','' )) : 
+                  card.label === 'Active Clients' ? (setfilterBy('active'),fetchData(1, '', '','active' )): 
+                  card.label === 'Projects Completed' ? (setfilterBy('completed'),fetchData(1, '', '','completed' )): null}
                 }
                 >
                   <div className="card-body pb-2">

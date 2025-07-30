@@ -198,8 +198,8 @@
 
 /* Status Colors */
 tr.row-status-active>td {
-  background-color: rgba(12, 239, 167, 0.582) !important;
-  color: var(--primary-dark);
+  background-color: #2563eb !important;
+  color: #fff;
 }
 
 tr.row-status-completed>td{
@@ -232,9 +232,9 @@ tr.row-status-comercial>td{
   transform: translateY(-2px);
 }
 
-.action-btn.download { color: var(--primary); }
-.action-btn.payment { color: var(--success); }
-.action-btn.invoice { color: var(--info); }
+.action-btn.download { color: #212529; }
+.action-btn.payment { color: #212529; }
+.action-btn.invoice { color: #212529; }
 
 /* Pagination */
 .pagination-container {
