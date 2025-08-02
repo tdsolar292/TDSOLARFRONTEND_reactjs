@@ -15,7 +15,7 @@ const ProformaInvoice = ({ show, handleClose }) => {
       clientName:'',
       clientAddress:'',
       clientState:'West Bengal',
-      clientPinCode:'',
+      clientPinCode:0,
       proposalDate: formatDateDDMMYYYY(new Date()), // Default to today's date
       systemType: '',
       systemConnection: '',
