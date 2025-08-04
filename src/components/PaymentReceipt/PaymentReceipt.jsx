@@ -33,32 +33,8 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
     proformaInvoiceDB_id:''//ProformaInvoiceDB_ID
   });
 
-  // Set dummy data on component mount (keep paymentDate as today for localhost)
-  useEffect(() => {
-    if (window.location.hostname === 'localhost') {
-      setFormData({
-         otp: "",
-        clientId: 'Sc1001',
-        paymentDate: getTodayDate(),
-        clientName: 'John Doe',
-        clientAddress: '123 Main St, Mumbai',
-        clientMobile: '+91-9876543210',
-        receiptNo: '',
-        paymentDetails: 'Advance Payment for Solar System',
-        amount: '1',
-        paymentMode: 'UPI',
-        PaymentModeOther: '',
-        transactionDetails: '', // <-- New field
-        clientEmail: 'tdsolar9@gmail.com',
-        invoiceNumber: '',
-        receiptGeneratedBy: 'Web Admin',
-        ReceiptGeneratedByOther: '',
-        clientState: 'West Bengal',
-        clientPinCode: '700001',
-        proformaInvoiceDB_id:''
-      });
-    }
-  }, []);
+  // Set dummy data on component mount (keep paymentDate as today for localhost)--REMOVED on 04/08/205
+  
 
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +51,7 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
         clientId: rowData.clientId || "",
         clientName: rowData.clientName || "",
         clientAddress: rowData.clientAddress || "",
+        clientPinCode: rowData.clientPinCode || "",
         clientMobile: rowData.clientMobile || rowData.clientMobile || "",
         clientEmail: rowData["Client clientEmail"] || rowData.clientEmail || "",
         invoiceNumber: rowData.invoiceNumber || "",
