@@ -6,6 +6,7 @@ import axios from "axios";
 import AddFinancialDataModal from "./AddFinancialDataModal";
 import exportFinancialDataToExcel from "./FinancialDataExcel";
 import { useAuth } from "../../auth";
+import financialReportConfig from "./financialReportConfig";
 
 const cardDataTemplate = [
   { value: 0, label: "Credit", icon: "bi-graph-up", color: "var(--success)" },
@@ -26,9 +27,9 @@ const FinancialReports = () => {
   const [cardData, setCardData] = useState(cardDataTemplate);
   const [reports, setReports] = useState([]);
   const [allData, setAllData] = useState([]);
-  const [accountOptions, setAccountOptions] = useState([]);
-  const [headOptions, setHeadOptions] = useState([]);
-  const [codeOptions, setCodeOptions] = useState([]);
+  const [accountOptions, setAccountOptions] = useState((financialReportConfig?.baseAccountNames || []));
+  const [headOptions, setHeadOptions] = useState((financialReportConfig?.heads || []));
+  const [codeOptions, setCodeOptions] = useState((financialReportConfig?.codes || []));
   const [summary, setSummary] = useState({ credit: 0, debit: 0, net: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -70,9 +71,17 @@ const FinancialReports = () => {
       const all = Array.isArray(payload) ? payload : (payload?.data || []);
 
       setAllData(all);
-      setAccountOptions(Array.from(new Set(all.map(r => r.accountMode).filter(Boolean))).sort());
-      setHeadOptions(Array.from(new Set(all.map(r => r.headOfAccount).filter(Boolean))).sort());
-      setCodeOptions(Array.from(new Set(all.map(r => r.code).filter(Boolean))).sort());
+      const derivedModes = Array.from(new Set(all.map(r => r.accountMode).filter(Boolean))).sort();
+      const derivedHeads = Array.from(new Set(all.map(r => r.headOfAccount).filter(Boolean))).sort();
+      const derivedCodes = Array.from(new Set(all.map(r => r.code).filter(Boolean))).sort();
+
+      const cfgModes = (financialReportConfig?.baseAccountNames || []);
+      const cfgHeads = (financialReportConfig?.heads || []);
+      const cfgCodes = (financialReportConfig?.codes || []);
+
+      setAccountOptions(cfgModes.length ? cfgModes : derivedModes);
+      setHeadOptions(cfgHeads.length ? cfgHeads : derivedHeads);
+      setCodeOptions(cfgCodes.length ? cfgCodes : derivedCodes);
     } catch (e) {
       console.error('Failed to load financial data from API', e);
       setAllData([]);

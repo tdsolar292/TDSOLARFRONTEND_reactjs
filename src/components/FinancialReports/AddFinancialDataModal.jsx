@@ -4,6 +4,7 @@ import config from '../../config';
 import axios from 'axios';
 import { useAuth } from '../../auth';
 import './AddFinancialDataModal.css';
+import financialReportConfig from './financialReportConfig';
 
 const AddFinancialDataModal = ({ onClose, onSuccess }) => {
   const { user } = useAuth();
@@ -20,48 +21,21 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
     amount: ''
   });
 
-  const transactionTypes = [
-    { value: 'Credit', label: 'Credit' },
-    { value: 'Debit', label: 'Debit' }
-  ];
+  const transactionTypes = (financialReportConfig?.transactionTypes?.length ? financialReportConfig.transactionTypes : []);
 
-  const accountModes = [
-    'Cash',
-    'Bank Transfer',
-    'Cheque',
-    'UPI',
-    'Credit Card',
-    'Debit Card',
-    'Online Payment'
-  ];
+  const accountModes = (financialReportConfig?.baseAccountNames?.length ? financialReportConfig.baseAccountNames : []);
 
-  const headOfAccountOptions = [
-    'Sales Revenue',
-    'Purchase Expenses',
-    'Salary Expenses',
-    'Rent Expenses',
-    'Utility Expenses',
-    'Marketing Expenses',
-    'Travel Expenses',
-    'Office Supplies',
-    'Insurance',
-    'Taxes',
-    'Interest Income',
-    'Investment Income',
-    'Other Income',
-    'Other Expenses'
-  ];
+  const headOfAccountOptions = (financialReportConfig?.heads?.length ? financialReportConfig.heads : []);
 
-  const codePrefixes = [
-    { value: 'Sc', label: 'Sc' },
-    { value: 'Lp', label: 'Lp' },
-    { value: 'Na', label: 'Na' }
-  ];
+  const codePrefixes = (financialReportConfig?.codePrefixes?.length ? financialReportConfig.codePrefixes : []);
+
+  // Prefixes that accept free text and are saved as PREFIX-<text>
+  const freeTextPrefixes = ['PER', 'COM'];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'codeValue') {
-      if (formData.codePrefix === 'Na') {
+      if (freeTextPrefixes.includes(formData.codePrefix)) {
         setFormData(prev => ({ ...prev, [name]: value }));
       } else {
         const numericValue = value.replace(/\D/g, '');
@@ -81,10 +55,11 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
   };
 
   const buildCodeValue = () => {
-    if (formData.codePrefix === 'Na') {
-      return formData.codeValue;
+    if (!formData.codeValue) return '';
+    if (freeTextPrefixes.includes(formData.codePrefix)) {
+      return `${formData.codePrefix}-${formData.codeValue}`;
     }
-    return formData.codeValue ? `${formData.codePrefix}${formData.codeValue}` : '';
+    return `${formData.codePrefix}${formData.codeValue}`;
   };
 
   const handleSubmit = async (e) => {
@@ -159,7 +134,7 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
-              <Form.Label className="fw-semibold text-primary">Account Mode</Form.Label>
+              <Form.Label className="fw-semibold text-primary">Base Acc Name</Form.Label>
               <Form.Select
                 name="accountMode"
                 value={formData.accountMode}
@@ -204,13 +179,15 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
                 <Form.Control
                   type="text"
                   name="codeValue"
-                  placeholder={formData.codePrefix === 'Na' ? 'Enter name (e.g., Tara Enterprise)' : 'Only numbers allowed'}
+                  placeholder={freeTextPrefixes.includes(formData.codePrefix) ? 'Enter name (e.g., Dwipayan)' : 'Only numbers allowed'}
                   value={formData.codeValue}
                   onChange={handleChange}
                 />
               </div>
               <small className="text-muted">
-                {formData.codePrefix === 'Na' ? 'Any text allowed' : 'Example:' + formData.codePrefix + '100023'}
+                {freeTextPrefixes.includes(formData.codePrefix)
+                  ? `Saved as ${formData.codePrefix}-<text>`
+                  : `Example: ${formData.codePrefix}100023`}
               </small>
             </div>
             

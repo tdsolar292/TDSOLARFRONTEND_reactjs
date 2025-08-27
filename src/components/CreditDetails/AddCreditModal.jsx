@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import config from '../../config';
+import creditDetailsConfig from './creditDetailsConfig';
 
 const AddCreditModal = ({ show, handleClose }) => {
   const [formData, setFormData] = useState({
@@ -130,32 +131,9 @@ const AddCreditModal = ({ show, handleClose }) => {
                 required
               >
                 <option value="" disabled>Account Name</option>
-                <option value="HDFC CREDIT CARD">HDFC CREDIT CARD</option>
-                <option value="INDUSLND BANK CREDIT CARD">INDUSLND BANK CREDIT CARD</option>
-                <option value="PAYTM">PAYTM</option>
-                <option value="CASH">CASH</option>
-                <option value="SBI SA">SBI SA</option>
-                <option value="SBI SA PPF">SBI SA PPF</option>
-                <option value="SBI SA CREDIT CARD">SBI SA CREDIT CARD</option>
-                <option value="HDFC HOME LOAN">HDFC HOME LOAN</option>
-                <option value="HDFC HOME LOAN INSURANCE">HDFC HOME LOAN INSURANCE</option>
-                <option value="SBI CA">SBI CA</option>
-                <option value="PNB SA">PNB SA</option>
-                <option value="PNB APY">PNB APY</option>
-                <option value="PNB SSA">PNB SSA</option>
-                <option value="LIC 3215">LIC 3215</option>
-                <option value="LIC 7000">LIC 7000</option>
-                <option value="ICICI SA">ICICI SA</option>
-                <option value="RUPA CA">RUPA CA</option>
-                <option value="SBI CA">SBI CA</option>
-                <option value="PNB SA">PNB SA</option>
-                <option value="PNB APY">PNB APY</option>
-                <option value="PNB SSA">PNB SSA</option>
-                <option value="LIC 3215">LIC 3215</option>
-                <option value="LIC 7000">LIC 7000</option>
-                <option value="ICICI SA">ICICI SA</option>
-                <option value="RUPA CA">RUPA CA</option>
-                <option value="C/A FD-250000">C/A FD-250000</option>
+                {accountNames.map((name) => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
               </Form.Control>
             </Form.Group>
 
@@ -188,16 +166,9 @@ const AddCreditModal = ({ show, handleClose }) => {
                 required
               >
                 <option value="" disabled>Credit Head</option>
-                <option value="BLANK">BLANK</option>
-                <option value="CASH">CASH</option>
-                <option value="Credit">Credit</option>
-                <option value="D/C">D/C</option>
-                <option value="DEPOSIT BY ME">DEPOSIT BY ME</option>
-                <option value="INTEREST">INTEREST</option>
-                <option value="INVESTMENT">INVESTMENT</option>
-                <option value="RECEIVED">RECEIVED</option>
-                <option value="RECEIVED+G1370">RECEIVED+G1370</option>
-                <option value="OTHERS">OTHERS</option>
+                {creditHeads.map((head) => (
+                  <option key={head} value={head}>{head}</option>
+                ))}
               </Form.Control>
               {showOtherInput && (
                 <Form.Control
@@ -249,14 +220,28 @@ const AddCreditModal = ({ show, handleClose }) => {
 
             <Form.Group className="mb-3">
               <Form.Label>Transaction Type</Form.Label>
-              <Form.Control
-                type="text"
-                name="transactionType"
-                value={formData.transactionType}
-                onChange={handleChange}
-                placeholder="Enter transaction type (e.g., Bank Transfer)"
-                required
-              />
+              {Array.isArray(creditDetailsConfig?.transactionTypes) && creditDetailsConfig.transactionTypes.length > 0 ? (
+                <Form.Select
+                  name="transactionType"
+                  value={formData.transactionType}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="" disabled>Choose...</option>
+                  {creditDetailsConfig.transactionTypes.map((t) => (
+                    <option key={t.value || t} value={t.value || t}>{t.label || t}</option>
+                  ))}
+                </Form.Select>
+              ) : (
+                <Form.Control
+                  type="text"
+                  name="transactionType"
+                  value={formData.transactionType}
+                  onChange={handleChange}
+                  placeholder="Enter transaction type (e.g., Bank Transfer)"
+                  required
+                />
+              )}
             </Form.Group>
 
             <Form.Group className="mb-3">
