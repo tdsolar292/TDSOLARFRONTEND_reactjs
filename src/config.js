@@ -8,6 +8,6 @@
 
 const config = {
   //NODE SERVER URL
-  MernBaseURL:MernVPSURL
+  MernBaseURL:MernLocalhostURL
 };
 export default config;

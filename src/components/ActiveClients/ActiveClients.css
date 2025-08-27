@@ -42,6 +42,15 @@
   background: linear-gradient(to right, var(--primary), var(--success));
 }
 
+/* Width classes for 33% layout */
+.w-md-33 {
+  width: 33.333333% !important;
+}
+
+.w-md-34 {
+  width: 34% !important;
+}
+
 .active-clients-title {
   font-size: 2rem;
   font-weight: 800;
@@ -56,6 +65,37 @@
   color: var(--text-secondary);
   font-size: 1.1rem;
   font-weight: 500;
+}
+
+/* Action buttons styling */
+.active-clients-topbar .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid;
+}
+
+.active-clients-topbar .btn-outline-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-color: var(--primary);
+  color: white;
+}
+
+.active-clients-topbar .btn-outline-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+}
+
+.active-clients-topbar .btn-outline-success {
+  background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+  border-color: var(--success);
+  color: white;
+}
+
+.active-clients-topbar .btn-outline-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.25);
 }
 
 /* Modern Search Section */

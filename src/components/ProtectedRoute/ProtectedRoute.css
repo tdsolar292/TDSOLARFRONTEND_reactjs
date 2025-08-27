@@ -1,0 +1,18 @@
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+}
+
+.loading-content {
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.loading-content p {
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}

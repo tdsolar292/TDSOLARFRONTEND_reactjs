@@ -6,40 +6,68 @@ import CreditDetails from './components/CreditDetails/CreditDetails';
 import Header from './components/common/header/Header';
 import './index.css';
 import ActiveClients from './components/ActiveClients/ActiveClients';
+import FinancialReports from './components/FinancialReports/FinancialReports';
+import Login from './components/Login/Login';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import RoleProtectedRoute from './components/RoleProtectedRoute/RoleProtectedRoute';
+import { AuthProvider } from './auth';
 
 // Define routes
 const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <Login />,
+  },
+  {
     path: "/",
     element: (
-      <>
-        <Header />
-        <App />
-      </>
+      <ProtectedRoute>
+        <>
+          <Header />
+          <App />
+        </>
+      </ProtectedRoute>
     ),
   },
   {
     path: "/credit-details",
     element: (
-      <>
-        <Header />
-        <CreditDetails />
-      </>
+      <ProtectedRoute>
+        <>
+          <Header />
+          <CreditDetails />
+        </>
+      </ProtectedRoute>
     ),
   },
   {
     path: "/active-clients",
     element: (
-      <>
-        <Header />
-        <ActiveClients />
-      </>
+      <ProtectedRoute>
+        <>
+          <Header />
+          <ActiveClients />
+        </>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/financial-reports",
+    element: (
+      <RoleProtectedRoute>
+        <>
+          <Header />
+          <FinancialReports />
+        </>
+      </RoleProtectedRoute>
     ),
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );

@@ -4,6 +4,8 @@ import Spinner from "react-bootstrap/Spinner";
 import config from "../../config";
 import PaymentReceipt from "../PaymentReceipt/PaymentReceipt";
 import GSTInvoice from "../GSTInvoice/GSTInvoice";
+import ProformaInvoice from "../ProformaInvoice/ProformaInvoice";
+import CommercialPerforma from "../CommercialProformaInvoice/CommercialProformaInvoice";
 import axios from "axios";
 
 const searchOptions = [
@@ -105,6 +107,8 @@ const ActiveClientsPage = () => {
   const [gstInvoiceRowData, setGstInvoiceRowData] = useState(null);
   const [loadingId, setLoadingId] = useState(null);
   const [showAmounts, setShowAmounts] = useState(false); // NEW
+  const [showProformaInvoice, setShowProformaInvoice] = useState(false);
+  const [showCommercialProforma, setShowCommercialProforma] = useState(false);
 
   // Digital clock state
   const [now, setNow] = useState(new Date());
@@ -226,6 +230,14 @@ const ActiveClientsPage = () => {
     setShowGSTInvoice(true);
   };
 
+  const handleOpenProformaInvoice = () => {
+    setShowProformaInvoice(true);
+  };
+
+  const handleOpenCommercialProforma = () => {
+    setShowCommercialProforma(true);
+  };
+
   // Handler for card click
   const handleCardClick = (card) => {
     if (
@@ -276,8 +288,8 @@ const ActiveClientsPage = () => {
           {/* Top Bar */}
           <div className="active-clients-topbar">
             <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-              {/* Title section */}
-              <div className="d-flex align-items-center text-center text-md-start w-100 w-md-25 gap-3">
+              {/* Title section - 33% */}
+              <div className="d-flex align-items-center text-center text-md-start w-100 w-md-33 gap-3">
                 <div className="position-relative">
                   <img
                     src="/tslogo.png"
@@ -296,8 +308,8 @@ const ActiveClientsPage = () => {
                 </div>
               </div>
 
-              {/* Search section - 75% on desktop, 100% on mobile */}
-              <div className="w-100 w-md-75">
+              {/* Search section - 33% */}
+              <div className="w-100 w-md-33">
                 <form className="active-clients-search-row" onSubmit={handleSearch}>
                   <div className="active-clients-search-box">
                     <select
@@ -320,6 +332,19 @@ const ActiveClientsPage = () => {
                     </button>
                   </div>
                 </form>
+              </div>
+
+              {/* Action buttons - 34% */}
+              <div className="w-100 w-md-34 d-flex justify-content-end">
+                <div className="d-flex gap-2">
+                  <button type="button" className="btn btn-outline-success" onClick={handleOpenProformaInvoice}>
+                    <i className="bi bi-plus-circle"></i> Domestic Proforma
+                  </button>
+                  <button type="button" className="btn btn-outline-warning" onClick={handleOpenCommercialProforma}>
+                    <i className="bi bi-plus-circle"></i> Commercial Proforma
+                  </button>
+                  
+                </div>
               </div>
             </div>
           </div>
@@ -515,6 +540,18 @@ const ActiveClientsPage = () => {
           show={showGSTInvoice}
           handleClose={() => setShowGSTInvoice(false)}
           rowData={gstInvoiceRowData}
+        />
+      )}
+      {showProformaInvoice && (
+        <ProformaInvoice
+          show={showProformaInvoice}
+          handleClose={() => setShowProformaInvoice(false)}
+        />
+      )}
+      {showCommercialProforma && (
+        <CommercialPerforma
+          show={showCommercialProforma}
+          handleClose={() => setShowCommercialProforma(false)}
         />
       )}
     </div>
