@@ -228,10 +228,10 @@ const handleSubmit_MERN = async (e) => {
       transportationCost: 0,
       miscellaneousExpenses: 0,
       electricSupply: '',
-      batteryBrand: '',
-      batteryType: '',
-      batteryCapacity:'' ,
-      batteryQuantity: 0,
+      batteryBrand: "NA", // Auto-select NA
+      batteryType: "NA",  // Auto-select NA
+      batteryCapacity: "NA", // Auto-select NA
+      batteryQuantity: 0, // Auto-select NA
       materialDiscount: 0,
       installationDiscount: 0,
       erectionDiscount: 0,
@@ -835,16 +835,16 @@ const handleSubmit_MERN = async (e) => {
                                 formData.totalProjectValue *
                                 (100 - formData.supplyPercentage) *
                                 0.01 *
-                                (100 / 118)
+                                (100 / 105)
                               ).toFixed(2)}
                             </span> &nbsp;
-                             GST (18%): &nbsp;
+                             GST (5%): &nbsp;
                             <span className="price" style={{ fontSize: '16px' }}>
                             {(
                                formData.totalProjectValue *
                                (100 - formData.supplyPercentage) *
                               0.01 *
-                              (18 / 118)
+                              (5 / 105)
                             ).toFixed(2)}
                             </span>
                           </span>
