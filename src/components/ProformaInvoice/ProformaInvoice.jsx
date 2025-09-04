@@ -111,7 +111,7 @@ const ProformaInvoice = ({ show, handleClose }) => {
   // Call setDummyData when the component is mounted
   useEffect(() => {
     if (window.location.hostname === 'localhost') {
-      //setDummyData();
+      setDummyData();
     } 
   }, []);
 
@@ -814,16 +814,16 @@ const handleSubmit_MERN = async (e) => {
                               {(
                                 formData.totalProjectValue *
                                 formData.supplyPercentage *
-                                0.01 / 1.12
+                                0.01 / 1.05
                               ).toFixed(2)}
                             </span>&nbsp;
-                             GST (12%): &nbsp;
+                             GST (5%): &nbsp;
                             <span className="price" style={{ fontSize: '16px' }}>
                             {(
                               formData.totalProjectValue *
                               formData.supplyPercentage *
                               0.01 *
-                              (12 / 112)
+                              (5 / 105)
                             ).toFixed(2)}
                             </span>
                           </span>

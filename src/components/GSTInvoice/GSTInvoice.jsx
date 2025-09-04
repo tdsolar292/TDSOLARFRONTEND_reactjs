@@ -195,7 +195,7 @@ const GSTInvoice = ({ show, handleClose, rowData }) => {
       batteryDetails: 
         [clean(rowData?.["batteryBrand"]), clean(rowData?.["batteryType"]), clean(rowData?.["batteryCapacity"]), clean(rowData?.["batteryQuantity"]) ? clean(rowData?.["batteryQuantity"]) + "Nos" : ""]
           .filter(Boolean).join(" ") || "",
-      PVTotalRatingKW: clean(rowData?.["PVTotalRatingKW"]) ? clean(rowData?.["PVTotalRatingKW"]) : (clean(rowData?.["moduleWatt"]) && clean(rowData?.["quantity"])) ? ((rowData?.["moduleWatt"]*rowData?.["quantity"] )*0.001)+' KW': '',
+      PVTotalRatingKW: clean(rowData?.["PVTotalRatingKW"]) ? clean(rowData?.["PVTotalRatingKW"]) : (clean(rowData?.["moduleWatt"]) && clean(rowData?.["quantity"])) ? ((rowData?.["moduleWatt"]*rowData?.["quantity"] )*0.001): '',
       }));
     }
   }, [rowData, paymentSummary]);
