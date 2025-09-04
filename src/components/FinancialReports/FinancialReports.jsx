@@ -37,6 +37,15 @@ const FinancialReports = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [section, setSection] = useState('creditDebit');
+
+  const sections = [
+    { key: 'creditDebit', label: 'Credit & Debit Acc' },
+    { key: 'loanPayment', label: 'Loan & Payment Acc' },
+    { key: 'settlements', label: 'Settlements Acc' },
+    { key: 'pendings', label: 'Pendings' },
+    { key: 'summary', label: 'Summary' },
+  ];
 
   const filters = useMemo(() => ({ code: codeFilter, account: accountFilter, head: headFilter, from: startDate, to: endDate }), [codeFilter, accountFilter, headFilter, startDate, endDate]);
 
@@ -117,6 +126,22 @@ const FinancialReports = () => {
 
   return (
     <div className="financial-reports-box">
+      {/* Section selector boxes */}
+      <div className="fr-sections">
+        {sections.map(s => (
+          <button
+            type="button"
+            key={s.key}
+            className={`fr-section-box ${section === s.key ? 'active' : ''}`}
+            onClick={() => setSection(s.key)}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {section === 'creditDebit' ? (
+        <>
       <div className="financial-reports-topbar">
         <div className="controls-row">
           {/* Title */}
@@ -242,6 +267,14 @@ const FinancialReports = () => {
           </nav>
         </div>
       </div>
+
+        </>
+      ) : (
+        <div className="fr-placeholder">
+          <h3>{sections.find(s => s.key === section)?.label}</h3>
+          <p>Content will appear here.</p>
+        </div>
+      )}
 
       {loading && (<div className="loading-overlay"><div className="loading-content"><Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner><p>Loading financial reports...</p></div></div>)}
 
