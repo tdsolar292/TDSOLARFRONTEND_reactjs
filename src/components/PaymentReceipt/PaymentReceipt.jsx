@@ -30,12 +30,13 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
     receiptGeneratedBy: '',
     clientState: 'West Bengal', // Default state
     clientPinCode: '',
-    proformaInvoiceDB_id:''//ProformaInvoiceDB_ID
+    proformaInvoiceDB_id:'',//ProformaInvoiceDB_ID
+    otp: '',
+    sendMailToClient: ''
   });
 
   // Set dummy data on component mount (keep paymentDate as today for localhost)--REMOVED on 04/08/205
   
-
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
@@ -168,6 +169,8 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
       ReceiptGeneratedByOther: '',
       clientState: 'West Bengal',
       clientPinCode: '',
+      otp: '',
+      sendMailToClient: ''
     });
     setStatus('');
   };
@@ -599,6 +602,28 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
                       className="border-0"
                       required
                     />
+                  </div>
+                </Form.Group>
+              </div>
+              <div className="col-sm-6 col-md-4 mb-3">
+                <Form.Group>
+                  <Form.Label className="fw-semibold text-primary">Send Mail to Client</Form.Label>
+                  <div className="input-group shadow-sm">
+                    <span className="input-group-text bg-light border-0">
+                      <i className="bi bi-envelope"></i>
+                    </span>
+                    <Form.Select
+                      id="sendMailToClient"
+                      name="sendMailToClient"
+                      value={formData.sendMailToClient || ''}
+                      onChange={handleChange}
+                      className="border-0"
+                      required
+                    >
+                      <option value="">Choose...</option>
+                      <option value="No">No</option>
+                      <option value="Yes">Yes</option>
+                    </Form.Select>
                   </div>
                 </Form.Group>
               </div>

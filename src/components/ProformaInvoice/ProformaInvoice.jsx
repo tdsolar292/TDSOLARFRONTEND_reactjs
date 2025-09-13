@@ -51,6 +51,7 @@ const ProformaInvoice = ({ show, handleClose }) => {
       clientIdType: 'existing', // Default set to "existing"
       invoiceGeneratedBy: '',
       otp: "",
+      sendMailToClient: "",
       status: "",
       invoiceNumber: '', // Added invoiceNumber to formData
     });
@@ -102,6 +103,7 @@ const ProformaInvoice = ({ show, handleClose }) => {
       clientIdType: 'existing', // Default set to "existing"
       invoiceGeneratedBy: 'WEB-ADMIN',
       otp: "9064",
+      sendMailToClient: "",
       status: "",
       invoiceNumber: '',
       inverterQuantity: 1,
@@ -240,6 +242,7 @@ const handleSubmit_MERN = async (e) => {
       clientIdType: 'existing', // Default set to "existing"
       invoiceGeneratedBy: '',
       otp: "",
+      sendMailToClient: "",
       status: "",
       invoiceNumber: '', // Added invoiceNumber to formData
     });
@@ -1033,7 +1036,23 @@ const handleSubmit_MERN = async (e) => {
                           onChange={handleChange}
                         />
                       </div>
+                      <div className="col-sm-4 mb-2">
+                        <label className="form-label" htmlFor="sendMailToClient">Send Mail to Client</label>
+                        <select
+                          className="form-select"
+                          id="sendMailToClient"
+                          name="sendMailToClient"
+                          value={formData.sendMailToClient || ''}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">Choose...</option>
+                          <option value="No">No</option>
+                          <option value="Yes">Yes</option>
+                        </select>
+                      </div>
                     </div>
+
                     <div className="modal-footer">
                       <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={resetForm}>Close</button>
                       <button type="submit" className="btn btn-primary">Generate Proforma Invoice</button>

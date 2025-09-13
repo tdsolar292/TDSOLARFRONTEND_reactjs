@@ -55,7 +55,8 @@ const GSTInvoice = ({ show, handleClose, rowData }) => {
     materialDetails:"",
     TotalPaymentDone:0,
     PVTotalRatingKW:0,
-    proformaInvoiceDB_id:""
+    proformaInvoiceDB_id:"",
+    sendMailToClient: ""
   });
 
   const resetForm = () => {
@@ -89,10 +90,11 @@ const GSTInvoice = ({ show, handleClose, rowData }) => {
     invoiceGeneratedBy:"",
     materialDetails:"",
     TotalPaymentDone:0,
-    PVTotalRatingKW:0
+    PVTotalRatingKW:0,
+    proformaInvoiceDB_id:"",
+    sendMailToClient: ""
     });
     setStatus('');
-    proformaInvoiceDB_id:""
   };
 
   useEffect(() => {
@@ -226,10 +228,10 @@ const GSTInvoice = ({ show, handleClose, rowData }) => {
   }, [show, rowData]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, type, checked, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -861,6 +863,27 @@ const GSTInvoice = ({ show, handleClose, rowData }) => {
                       <option value="WebAdmin">WebAdmin</option>
                       <option value="Other">Other</option>
                     </Form.Select>
+                  </div>
+                </Form.Group>
+              </div>
+              <div className="col-md-4 mb-3">
+                <Form.Group controlId="sendMailToClient">
+                  <Form.Label className="fw-semibold text-primary">Send Mail to Client</Form.Label>
+                  <div className="input-group shadow-sm">
+                    <span className="input-group-text bg-light border-0">
+                      <i className="bi bi-envelope"></i>
+                    </span>
+                  <Form.Select
+                    name="sendMailToClient"
+                    value={formData.sendMailToClient || ""}
+                    onChange={handleInputChange}
+                    className="border-0"
+                    required
+                  >
+                    <option value="">Select Mail</option>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </Form.Select>
                   </div>
                 </Form.Group>
               </div>
