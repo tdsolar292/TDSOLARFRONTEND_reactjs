@@ -85,7 +85,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
    batteryQuantity: 0,
    hsnsacCode2Solar: "",
    invoiceGeneratedBy: "",
-   
+   sendMailToClient: "",
    pricePerWattIncGst: 0,
    mat1Required3: true,
    mat2Required5: true,
@@ -249,6 +249,7 @@ const CommercialPerforma = ({ show, handleClose }) => {
     batteryQuantity: 0,
     hsnsacCode2Solar: "",
     invoiceGeneratedBy: "",
+    sendMailToClient: "",
     
     pricePerWattIncGst: 0,
     mat1Required3: true,
@@ -1297,6 +1298,23 @@ const CommercialPerforma = ({ show, handleClose }) => {
                  onChange={handleChange}
                  required
                />
+             </div>
+             <div className="col-sm-4 mb-2">
+               <label className="form-label" htmlFor="sendMailToClient">
+                 Send Mail to Client
+               </label>
+               <select
+                 className="form-select"
+                 id="sendMailToClient"
+                 name="sendMailToClient"
+                 value={formData.sendMailToClient || ""}
+                 onChange={handleChange}
+                 required
+               >
+                 <option value="">Choose...</option>
+                 <option value="No">No</option>
+                 <option value="Yes">Yes</option>
+               </select>
              </div>
            </div>
            <div className="modal-footer">
