@@ -7,6 +7,7 @@ import AddFinancialDataModal from "./AddFinancialDataModal";
 import exportFinancialDataToExcel from "./FinancialDataExcel";
 import { useAuth } from "../../auth";
 import financialReportConfig from "./financialReportConfig";
+import FinancialSummary from "./FinancialSummary";
 
 const cardDataTemplate = [
   { value: 0, label: "Credit", icon: "bi-graph-up", color: "var(--success)" },
@@ -14,30 +15,35 @@ const cardDataTemplate = [
   { value: 0, label: "Net Balance", icon: "bi-cash-coin", color: "var(--primary)" }
 ];
 
-const tableDisplayHeaders = ["Code", "Date", "Mode", "Head of Account", "Description for Transaction", "Credit", "Debit"];
+const tableDisplayHeaders = ["Code", "Date", "From Account", "To Account", "C/D", "Main Header", "Sub Header", "Amount", "Actions"];
 
 const FinancialReports = () => {
   const { user } = useAuth();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [accountFilter, setAccountFilter] = useState("");
-  const [headFilter, setHeadFilter] = useState("");
+  const [fromAccountFilter, setFromAccountFilter] = useState("");
+  const [toAccountFilter, setToAccountFilter] = useState("");
+  const [cdFilter, setCdFilter] = useState("");
+  const [mainHeaderFilter, setMainHeaderFilter] = useState("");
   const [codeFilter, setCodeFilter] = useState("");
 
   const [cardData, setCardData] = useState(cardDataTemplate);
   const [reports, setReports] = useState([]);
   const [allData, setAllData] = useState([]);
-  const [accountOptions, setAccountOptions] = useState((financialReportConfig?.baseAccountNames || []));
-  const [headOptions, setHeadOptions] = useState((financialReportConfig?.heads || []));
-  const [codeOptions, setCodeOptions] = useState((financialReportConfig?.codes || []));
+  const [accountOptions, setAccountOptions] = useState((financialReportConfig?.accountNames || []));
+  const [mainHeaderOptions, setMainHeaderOptions] = useState([]);
+  const [codeOptions, setCodeOptions] = useState([]);
   const [summary, setSummary] = useState({ credit: 0, debit: 0, net: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [section, setSection] = useState('creditDebit');
+  const [showFilters, setShowFilters] = useState(true);
+  const [editingItem, setEditingItem] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null });
 
   const sections = [
     { key: 'creditDebit', label: 'Credit & Debit Acc' },
@@ -47,12 +53,22 @@ const FinancialReports = () => {
     { key: 'summary', label: 'Summary' },
   ];
 
-  const filters = useMemo(() => ({ code: codeFilter, account: accountFilter, head: headFilter, from: startDate, to: endDate }), [codeFilter, accountFilter, headFilter, startDate, endDate]);
+  const filters = useMemo(() => ({ 
+    code: codeFilter, 
+    fromAccount: fromAccountFilter, 
+    toAccount: toAccountFilter, 
+    cd: cdFilter, 
+    mainHeader: mainHeaderFilter, 
+    from: startDate, 
+    to: endDate 
+  }), [codeFilter, fromAccountFilter, toAccountFilter, cdFilter, mainHeaderFilter, startDate, endDate]);
 
   const filteredData = useMemo(() => {
     let filtered = allData;
-    if (filters.account) filtered = filtered.filter(r => r.accountMode === filters.account);
-    if (filters.head) filtered = filtered.filter(r => r.headOfAccount === filters.head);
+    if (filters.fromAccount) filtered = filtered.filter(r => r.fromAccount === filters.fromAccount);
+    if (filters.toAccount) filtered = filtered.filter(r => r.toAccount === filters.toAccount);
+    if (filters.cd) filtered = filtered.filter(r => r.cd === filters.cd);
+    if (filters.mainHeader) filtered = filtered.filter(r => r.mainHeader === filters.mainHeader);
     if (filters.code) {
       const q = filters.code.toLowerCase();
       filtered = filtered.filter(r => (r.code || "").toLowerCase().includes(q));
@@ -80,17 +96,21 @@ const FinancialReports = () => {
       const all = Array.isArray(payload) ? payload : (payload?.data || []);
 
       setAllData(all);
-      const derivedModes = Array.from(new Set(all.map(r => r.accountMode).filter(Boolean))).sort();
-      const derivedHeads = Array.from(new Set(all.map(r => r.headOfAccount).filter(Boolean))).sort();
+      const derivedAccounts = Array.from(new Set([...all.map(r => r.fromAccount), ...all.map(r => r.toAccount)].filter(Boolean))).sort();
+      const derivedMainHeaders = Array.from(new Set(all.map(r => r.mainHeader).filter(Boolean))).sort();
       const derivedCodes = Array.from(new Set(all.map(r => r.code).filter(Boolean))).sort();
 
-      const cfgModes = (financialReportConfig?.baseAccountNames || []);
-      const cfgHeads = (financialReportConfig?.heads || []);
-      const cfgCodes = (financialReportConfig?.codes || []);
+      const cfgAccounts = (financialReportConfig?.accountNames || []);
+      // Combine all three main header lists for filter dropdown
+      const allMainHeaders = [
+        ...(financialReportConfig?.mainHeadersDebit || []),
+        ...(financialReportConfig?.mainHeadersCredit || []),
+        ...(financialReportConfig?.mainHeadersLoan || [])
+      ];
 
-      setAccountOptions(cfgModes.length ? cfgModes : derivedModes);
-      setHeadOptions(cfgHeads.length ? cfgHeads : derivedHeads);
-      setCodeOptions(cfgCodes.length ? cfgCodes : derivedCodes);
+      setAccountOptions(cfgAccounts.length ? cfgAccounts : derivedAccounts);
+      setMainHeaderOptions(allMainHeaders.length ? allMainHeaders : derivedMainHeaders);
+      setCodeOptions(derivedCodes);
     } catch (e) {
       console.error('Failed to load financial data from API', e);
       setAllData([]);
@@ -98,8 +118,9 @@ const FinancialReports = () => {
   };
 
   const recomputeFromFiltered = () => {
-    const totalCredit = filteredData.reduce((acc, r) => acc + (r.transactionType === 'Credit' ? Number(r.amount || 0) : 0), 0);
-    const totalDebit = filteredData.reduce((acc, r) => acc + (r.transactionType === 'Debit' ? Number(r.amount || 0) : 0), 0);
+    // Exclude CD (loan) transactions - they don't affect account balance
+    const totalCredit = filteredData.reduce((acc, r) => acc + (r.cd === 'C' ? Number(r.amount || 0) : 0), 0);
+    const totalDebit = filteredData.reduce((acc, r) => acc + (r.cd === 'D' ? Number(r.amount || 0) : 0), 0);
     const net = totalCredit - totalDebit;
     setSummary({ credit: totalCredit, debit: totalDebit, net });
     setTotal(filteredData.length);
@@ -111,18 +132,71 @@ const FinancialReports = () => {
   const mapToRow = (item) => ({
     code: item.code || "",
     date: item.date || "",
-    mode: item.accountMode || "",
-    head: item.headOfAccount || "",
-    desc: item.description || "",
-    credit: item.transactionType === 'Credit' ? Number(item.amount || 0) : 0,
-    debit: item.transactionType === 'Debit' ? Number(item.amount || 0) : 0
+    fromAccount: item.fromAccount || "",
+    toAccount: item.toAccount || "",
+    cd: item.cd || "",
+    mainHeader: item.mainHeader || "",
+    subHeader: item.subHeader || "",
+    amount: Number(item.amount || 0)
   });
 
   const formatAmount = (val) => { if (!val) return ""; try { return `₹${Number(val).toLocaleString()}`; } catch { return `${val}`; } };
 
-  const clearFilters = () => { setAccountFilter(""); setHeadFilter(""); setCodeFilter(""); setStartDate(""); setEndDate(""); };
+  const clearFilters = () => { 
+    setFromAccountFilter(""); 
+    setToAccountFilter(""); 
+    setCdFilter(""); 
+    setMainHeaderFilter(""); 
+    setCodeFilter(""); 
+    setStartDate(""); 
+    setEndDate(""); 
+  };
 
   const handleExportExcel = () => { exportFinancialDataToExcel({ rows: filteredData, user, filters }); };
+
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    setShowModal(true);
+  };
+
+  const handleDeleteClick = (item) => {
+    setDeleteConfirm({ show: true, item });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm.item) return;
+    
+    try {
+      const url = `${config.MernBaseURL}/financialData/delete/${deleteConfirm.item._id}`;
+      const payload = {
+        deletedBy: user?.username,
+        deletedAt: new Date().toISOString().split('T')[0]
+      };
+      
+      await axios.put(url, payload, { headers: { "Content-Type": "application/json" } });
+      
+      // Refresh data after delete
+      fetchData();
+      setDeleteConfirm({ show: false, item: null });
+    } catch (error) {
+      console.error('Failed to delete financial data', error);
+      alert('Failed to delete record. Please try again.');
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirm({ show: false, item: null });
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setEditingItem(null);
+  };
+
+  const handleModalSuccess = () => {
+    fetchData();
+    handleModalClose();
+  };
 
   return (
     <div className="financial-reports-box">
@@ -143,65 +217,104 @@ const FinancialReports = () => {
       {section === 'creditDebit' ? (
         <>
       <div className="financial-reports-topbar">
-        <div className="controls-row">
-          {/* Title */}
+        {/* Header with title and action buttons */}
+        <div className="topbar-header">
           <div className="controls-title">
             <h1 className="financial-reports-title">Financial Reports</h1>
             <p className="financial-reports-subtitle">Compact overview</p>
           </div>
-
-          {/* Code */}
-          <div className="filter-item">
-            <label>Code</label>
-            <div className="filter-code-input">
-              <input type="text" list="code-options" className="financial-reports-input" placeholder="Search/select code" value={codeFilter} onChange={(e) => { setCodeFilter(e.target.value); setPage(1);} } />
-              {codeFilter && (
-                <button type="button" className="code-clear-btn" aria-label="Clear code filter" onClick={() => { setCodeFilter(""); setPage(1); }}>
-                  <i className="bi bi-x-lg"></i>
-                </button>
-              )}
-            </div>
-            <datalist id="code-options">{codeOptions.map(code => (<option key={code} value={code} />))}</datalist>
-          </div>
-
-          {/* Mode */}
-          <div className="filter-item">
-            <label>Mode</label>
-            <select className="financial-reports-select" value={accountFilter} onChange={(e) => { setAccountFilter(e.target.value); setPage(1);} }>
-              <option value="">All</option>
-              {accountOptions.map(acc => (<option key={acc} value={acc}>{acc}</option>))}
-            </select>
-          </div>
-
-          {/* Head */}
-          <div className="filter-item">
-            <label>Head</label>
-            <select className="financial-reports-select" value={headFilter} onChange={(e) => { setHeadFilter(e.target.value); setPage(1);} }>
-              <option value="">All</option>
-              {headOptions.map(h => (<option key={h} value={h}>{h}</option>))}
-            </select>
-          </div>
-
-          {/* From */}
-          <div className="filter-item">
-            <label>From</label>
-            <input type="date" className="financial-reports-date-input" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1);} } />
-          </div>
-
-          {/* To */}
-          <div className="filter-item">
-            <label>To</label>
-            <input type="date" className="financial-reports-date-input" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1);} } />
-          </div>
-
-          {/* Actions */}
-          <div className="controls-actions">
-          <button type="button" className="btn btn-outline-primary" onClick={clearFilters}>Clear</button>
-            <button type="button" className="financial-reports-add-btn" onClick={() => setShowModal(true)}><i className="bi bi-plus-circle"></i> Add Financial Data</button>
-            <button type="button" className="financial-reports-download-btn" onClick={handleExportExcel}><i className="bi bi-download"></i> Download Data</button>
-            
+          
+          <div className="header-actions">
+            <button 
+              type="button" 
+              className="btn btn-outline-secondary icon-btn filter-toggle-btn" 
+              onClick={() => setShowFilters(!showFilters)} 
+              title="Toggle Filters"
+            >
+              <i className={`bi ${showFilters ? 'bi-funnel-fill' : 'bi-funnel'}`}></i>
+            </button>
+            <button type="button" className="btn btn-outline-primary icon-btn" onClick={clearFilters} title="Clear Filters">
+              <i className="bi bi-eraser"></i>
+            </button>
+            <button type="button" className="financial-reports-add-btn icon-btn" onClick={() => setShowModal(true)} title="Add Financial Data">
+              <i className="bi bi-plus-circle"></i>
+            </button>
+            <button type="button" className="financial-reports-download-btn icon-btn" onClick={handleExportExcel} title="Download Data">
+              <i className="bi bi-download"></i>
+            </button>
           </div>
         </div>
+
+        {/* Collapsible Filters */}
+        {showFilters && (
+          <div className="filters-panel">
+            <div className="filters-grid">
+              {/* Code */}
+              <div className="filter-item">
+                <label>Code</label>
+                <div className="filter-code-input">
+                  <input type="text" list="code-options" className="financial-reports-input" placeholder="Search/select code" value={codeFilter} onChange={(e) => { setCodeFilter(e.target.value); setPage(1);} } />
+                  {codeFilter && (
+                    <button type="button" className="code-clear-btn" aria-label="Clear code filter" onClick={() => { setCodeFilter(""); setPage(1); }}>
+                      <i className="bi bi-x-lg"></i>
+                    </button>
+                  )}
+                </div>
+                <datalist id="code-options">{codeOptions.map(code => (<option key={code} value={code} />))}</datalist>
+              </div>
+
+              {/* From Account */}
+              <div className="filter-item">
+                <label>From Account</label>
+                <select className="financial-reports-select" value={fromAccountFilter} onChange={(e) => { setFromAccountFilter(e.target.value); setPage(1);} }>
+                  <option value="">All</option>
+                  {accountOptions.map(acc => (<option key={acc} value={acc}>{acc}</option>))}
+                </select>
+              </div>
+
+              {/* To Account */}
+              <div className="filter-item">
+                <label>To Account</label>
+                <select className="financial-reports-select" value={toAccountFilter} onChange={(e) => { setToAccountFilter(e.target.value); setPage(1);} }>
+                  <option value="">All</option>
+                  {accountOptions.map(acc => (<option key={acc} value={acc}>{acc}</option>))}
+                </select>
+              </div>
+
+              {/* C/D */}
+              <div className="filter-item">
+                <label>C/D</label>
+                <select className="financial-reports-select" value={cdFilter} onChange={(e) => { setCdFilter(e.target.value); setPage(1);} }>
+                  <option value="">All</option>
+                  <option value="C">Credit</option>
+                  <option value="D">Debit</option>
+                  <option value="CD">Loan (CD)</option>
+                </select>
+              </div>
+
+              {/* Main Header */}
+              <div className="filter-item">
+                <label>Main Header</label>
+                <select className="financial-reports-select" value={mainHeaderFilter} onChange={(e) => { setMainHeaderFilter(e.target.value); setPage(1);} }>
+                  <option value="">All</option>
+                  {mainHeaderOptions.map(h => (<option key={h} value={h}>{h}</option>))}
+                </select>
+              </div>
+
+              {/* From Date */}
+              <div className="filter-item">
+                <label>From</label>
+                <input type="date" className="financial-reports-date-input" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1);} } />
+              </div>
+
+              {/* To Date */}
+              <div className="filter-item">
+                <label>To</label>
+                <input type="date" className="financial-reports-date-input" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1);} } />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="summary-cards">
@@ -230,11 +343,32 @@ const FinancialReports = () => {
                 <tr key={idx}>
                   <td>{row.code}</td>
                   <td>{row.date}</td>
-                  <td>{row.mode}</td>
-                  <td>{row.head}</td>
-                  <td>{row.desc}</td>
-                  <td ><span className="amount-credit">{formatAmount(row.credit)}</span></td>
-                  <td ><span className="amount-debit">{formatAmount(row.debit)}</span></td>
+                  <td>{row.fromAccount}</td>
+                  <td>{row.toAccount}</td>
+                  <td><span className={row.cd === 'C' ? 'amount-credit' : row.cd === 'D' ? 'amount-debit' : 'amount-loan'}>{row.cd === 'C' ? 'C' : row.cd === 'D' ? 'D' : row.cd === 'CD' ? 'CD' : ''}</span></td>
+                  <td>{row.mainHeader}</td>
+                  <td>{row.subHeader}</td>
+                  <td><span className={row.cd === 'C' ? 'amount-credit' : row.cd === 'D' ? 'amount-debit' : 'amount-loan'}>{formatAmount(row.amount)}</span></td>
+                  <td>
+                    <div className="action-buttons">
+                      <button 
+                        type="button" 
+                        className="btn-action btn-edit" 
+                        onClick={() => handleEdit(item)}
+                        title="Edit"
+                      >
+                        <i className="bi bi-pencil-square"></i>
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn-action btn-delete" 
+                        onClick={() => handleDeleteClick(item)}
+                        title="Delete"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               );})}
             </tbody>
@@ -242,7 +376,7 @@ const FinancialReports = () => {
         </div>
 
         <div className="balance-summary">
-          <div className="summary-title">Balance Summary {filters.account ? `- ${filters.account}` : '- All Accounts'}</div>
+          <div className="summary-title">Balance Summary - All Accounts</div>
           <div className="summary-items">
             <div>Credit: <span className="amount-credit">{formatAmount(summary.credit)}</span></div>
             <div>Debit: <span className="amount-debit">{formatAmount(summary.debit)}</span></div>
@@ -269,6 +403,8 @@ const FinancialReports = () => {
       </div>
 
         </>
+      ) : section === 'summary' ? (
+        <FinancialSummary />
       ) : (
         <div className="fr-placeholder">
           <h3>{sections.find(s => s.key === section)?.label}</h3>
@@ -278,7 +414,41 @@ const FinancialReports = () => {
 
       {loading && (<div className="loading-overlay"><div className="loading-content"><Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner><p>Loading financial reports...</p></div></div>)}
 
-      {showModal && (<AddFinancialDataModal onClose={() => setShowModal(false)} onSuccess={fetchData} />)}
+      {showModal && (<AddFinancialDataModal editData={editingItem} onClose={handleModalClose} onSuccess={handleModalSuccess} />)}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div className="delete-modal-overlay">
+          <div className="delete-modal">
+            <div className="delete-modal-header">
+              <h3>Confirm Delete</h3>
+              <button type="button" className="close-btn" onClick={handleDeleteCancel}>
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+            <div className="delete-modal-body">
+              <div className="delete-icon">
+                <i className="bi bi-exclamation-triangle"></i>
+              </div>
+              <p>Are you sure you want to delete this financial record?</p>
+              <div className="delete-details">
+                <p><strong>Code:</strong> {deleteConfirm.item?.code}</p>
+                <p><strong>Date:</strong> {deleteConfirm.item?.date}</p>
+                <p><strong>Amount:</strong> {formatAmount(deleteConfirm.item?.amount)}</p>
+              </div>
+              <p className="delete-warning">This action will mark the record as deleted and can be tracked.</p>
+            </div>
+            <div className="delete-modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={handleDeleteCancel}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-danger" onClick={handleDeleteConfirm}>
+                <i className="bi bi-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

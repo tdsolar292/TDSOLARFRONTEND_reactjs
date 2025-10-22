@@ -3,15 +3,27 @@
 // If an array is left empty, the UI will fall back to values derived from API data.
 
 const financialReportConfig = {
-  // Set explicit codes to show in the Code datalist. Example: ["TRX-001", "TRX-002"]
-  codes: [],
+  // Code types for the code dropdown
+  codeTypes: [
+    { value: 'LS', label: 'LS' },
+    { value: 'SC', label: 'SC' },
+    { value: 'COM', label: 'COM' },
+    { value: 'PER', label: 'PER' },
+    { value: 'SELF', label: 'SELF' },
+    { value: 'UNSECURE LOAN', label: 'UNSECURE LOAN' },
+    { value: 'UNSECURE LOAN PAYMENT', label: 'UNSECURE LOAN PAYMENT' },
+    { value: 'SECURE LOAN', label: 'SECURE LOAN' },
+    { value: 'SECURE LOAN PAYMENT', label: 'SECURE LOAN PAYMENT' },
+    { value: 'OTHER', label: 'OTHER' }
+  ],
 
-  // Set explicit modes to show in the Mode dropdown. Example: ["Cash", "Bank", "UPI", "Card"]
-  baseAccountNames: [
+  // Account names for fromAccount and toAccount dropdowns
+  accountNames: [
+    'NA',
     'HDFC CREDIT CARD',
     'INDUSLND BANK CREDIT CARD',
     'PAYTM',
-    'CASH',
+    'CASH FOR TD',
     'SBI SA',
     'SBI SA PPF',
     'SBI SA CREDIT CARD',
@@ -28,36 +40,63 @@ const financialReportConfig = {
     'C/A FD-250000',
   ],
 
-  // Set explicit heads to show in the Head dropdown. Example: ["Sales", "Purchase", "Salary", "Rent"]
-  heads: [
-    'Sales Revenue',
-    'Purchase Expenses',
-    'Salary Expenses',
-    'Rent Expenses',
-    'Utility Expenses',
-    'Marketing Expenses',
-    'Travel Expenses',
-    'Office Supplies',
-    'Insurance',
-    'Taxes',
-    'Interest Income',
-    'Investment Income',
-    'Other Income',
-    'Other Expenses'
+  // Credit/Debit options
+  creditDebitOptions: [
+    { value: 'C', label: 'Credit' },
+    { value: 'D', label: 'Debit' },
+    { value: 'CD', label: 'Credit/Debit' }
   ],
 
-  // Transaction types used in AddFinancialDataModal select
-  transactionTypes: [
-    { value: 'Credit', label: 'Credit' },
-    { value: 'Debit', label: 'Debit' }
+  // Code types that should auto-select CD (doesn't affect account totals)
+  loanRelatedCodes: ['SELF', 'UNSECURE LOAN', 'SECURE LOAN'],
+
+  // Main header categories for Debit (D)
+  mainHeadersDebit: [
+    'MATERIALS_TYPES OF INSTRUMENTS',
+    'MATERIALS_ELECTRICAL RELATED ITEMS',
+    'MATERIALS_CIVIL ITEMS',
+    'MATERIALS_OTHERS',
+    'OFFICE EXPENCES_UTILITIES_BILL PAYMENT',
+    'OFFICE EXPENCES_MARKITING AND ADVERTISING_ALL',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_MEDICAL',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_ADVANCE',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_SALARY',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_INCENTIVE',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_RENT CHARGES',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_FUEL',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_RECHARGE',
+    'OFFICE EXPENCES_PAYROLL AND WAGE_ENTERTAINMENT',
+    'OFFICE EXPENCES_DIRECT LABOUR_LABOUR CHARGES',
+    'OFFICE EXPENCES_DIRECT LABOUR_HIRING OF MANPOWER',
+    'OFFICE EXPENCES_DIRECT LABOUR_TRANSPORTATION',
+    'OFFICE EXPENCES_DONATION',
+    'OFFICE EXPENCES_LOAN',
+    'OFFICE EXPENCES_URGENT MONEY TO EVERYONE',
+    'OFFICE EXPENCES_LOAN RE-PAYMENT',
+    'OFFICE EXPENCES_PROFESSIONAL FEES',
+    'OFFICE EXPENCES_OTHERS',
+    'GOVERNMENT PAYMENT_GRIPS',
+    'GOVERNMENT PAYMENT_STAMP DUTY',
+    'GOVERNMENT PAYMENT_ANY TAXES',
+    'GOVERNMENT PAYMENT_OTHERS',
+    'INSURANCE_FOR BUSINESS',
+    'INVESTMENT(ALL TYPES)',
+    'RETURNED AGAINST ALL CONDITION',
+    'SELF TRANSFER',
+    'CASH WITHDRAWAL'
   ],
 
-  // Code prefixes used in AddFinancialDataModal select
-  codePrefixes: [
-    { value: 'Sc', label: 'Sc' },
-    { value: 'Lp', label: 'Lp' },
-    { value: 'PER', label: 'PER' },
-    { value: 'COM', label: 'COM' }
+  // Main header categories for Credit (C)
+  mainHeadersCredit: [
+    'PAYMENT AGAINST SOLAR INSTALLATION',
+    'PAYMENT AGAINST CONSULTANCY',
+    'PAYMENT AGAINST CIVIL MATTERS',
+    'CASH DEPOSIT'
+  ],
+
+  // Main header categories for Credit/Debit (C/D) - Loan related
+  mainHeadersLoan: [
+    'CREDIT CARD PAYMENT'
   ],
 };
 

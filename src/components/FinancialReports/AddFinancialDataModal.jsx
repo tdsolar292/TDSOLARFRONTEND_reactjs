@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import config from '../../config';
 import axios from 'axios';
@@ -6,60 +6,89 @@ import { useAuth } from '../../auth';
 import './AddFinancialDataModal.css';
 import financialReportConfig from './financialReportConfig';
 
-const AddFinancialDataModal = ({ onClose, onSuccess }) => {
+const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const isEditMode = !!editData;
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
-    transactionType: '',
-    accountMode: '',
-    headOfAccount: '',
-    codePrefix: 'Sc',
-    codeValue: '',
-    description: '',
+    codeType: '',
+    codeNumber: '',
+    fromAccount: '',
+    toAccount: '',
+    cd: '',
+    mainHeader: '',
+    subHeader: '',
     amount: ''
   });
 
-  const transactionTypes = (financialReportConfig?.transactionTypes?.length ? financialReportConfig.transactionTypes : []);
+  // Populate form when editing
+  useEffect(() => {
+    if (editData) {
+      // Split code into type and number if exists
+      const codeMatch = editData.code?.match(/^([A-Z\s]+)(\d*)$/);
+      setFormData({
+        date: editData.date || new Date().toISOString().split('T')[0],
+        codeType: codeMatch?.[1]?.trim() || '',
+        codeNumber: codeMatch?.[2] || '',
+        fromAccount: editData.fromAccount || '',
+        toAccount: editData.toAccount || '',
+        cd: editData.cd || '',
+        mainHeader: editData.mainHeader || '',
+        subHeader: editData.subHeader || '',
+        amount: editData.amount || ''
+      });
+    }
+  }, [editData]);
 
-  const accountModes = (financialReportConfig?.baseAccountNames?.length ? financialReportConfig.baseAccountNames : []);
+  const codeTypes = (financialReportConfig?.codeTypes?.length ? financialReportConfig.codeTypes : []);
 
-  const headOfAccountOptions = (financialReportConfig?.heads?.length ? financialReportConfig.heads : []);
+  const accountNames = (financialReportConfig?.accountNames?.length ? financialReportConfig.accountNames : []);
 
-  const codePrefixes = (financialReportConfig?.codePrefixes?.length ? financialReportConfig.codePrefixes : []);
+  const cdOptions = (financialReportConfig?.creditDebitOptions?.length ? financialReportConfig.creditDebitOptions : []);
 
-  // Prefixes that accept free text and are saved as PREFIX-<text>
-  const freeTextPrefixes = ['PER', 'COM'];
+  // Dynamic main header options based on cd selection
+  const getMainHeaderOptions = () => {
+    if (!formData.cd) return [];
+    if (formData.cd === 'D') return financialReportConfig?.mainHeadersDebit || [];
+    if (formData.cd === 'C') return financialReportConfig?.mainHeadersCredit || [];
+    if (formData.cd === 'CD') {
+      // For CD, combine all main header options
+      return [
+        ...(financialReportConfig?.mainHeadersDebit || []),
+        ...(financialReportConfig?.mainHeadersCredit || []),
+        ...(financialReportConfig?.mainHeadersLoan || [])
+      ];
+    }
+    return [];
+  };
+
+  const mainHeaderOptions = getMainHeaderOptions();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'codeValue') {
-      if (freeTextPrefixes.includes(formData.codePrefix)) {
-        setFormData(prev => ({ ...prev, [name]: value }));
-      } else {
-        const numericValue = value.replace(/\D/g, '');
-        setFormData(prev => ({ ...prev, [name]: numericValue }));
+    
+    // If codeType changes and is a loan-related code, auto-select CD
+    if (name === 'codeType') {
+      const loanRelatedCodes = financialReportConfig?.loanRelatedCodes || [];
+      if (loanRelatedCodes.includes(value)) {
+        setFormData(prev => ({ ...prev, [name]: value, cd: 'CD', mainHeader: '' }));
+        return;
       }
-    } else {
+    }
+    
+    // If cd changes, reset mainHeader since options will change
+    if (name === 'cd') {
+      setFormData(prev => ({ ...prev, [name]: value, mainHeader: '', subHeader: '' }));
+    } 
+    // If mainHeader changes, auto-fill subHeader with same value
+    else if (name === 'mainHeader') {
+      setFormData(prev => ({ ...prev, [name]: value, subHeader: value }));
+    } 
+    else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-  };
-
-  const handlePrefixChange = (e) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      codePrefix: e.target.value,
-      codeValue: '' 
-    }));
-  };
-
-  const buildCodeValue = () => {
-    if (!formData.codeValue) return '';
-    if (freeTextPrefixes.includes(formData.codePrefix)) {
-      return `${formData.codePrefix}-${formData.codeValue}`;
-    }
-    return `${formData.codePrefix}${formData.codeValue}`;
   };
 
   const handleSubmit = async (e) => {
@@ -69,25 +98,40 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
 
     try {
       const payload = {
+        code: formData.codeType || formData.codeNumber ? `${formData.codeType}${formData.codeNumber}` : '',
         date: formData.date,
-        transactionType: formData.transactionType,
-        accountMode: formData.accountMode,
-        headOfAccount: formData.headOfAccount,
-        code: buildCodeValue(),
-        description: formData.description,
-        amount: parseFloat(formData.amount),
-        generatedBy: user?.username
+        fromAccount: formData.fromAccount,
+        toAccount: formData.toAccount,
+        cd: formData.cd,
+        mainHeader: formData.mainHeader,
+        subHeader: formData.subHeader,
+        amount: parseFloat(formData.amount)
       };
 
-      const url = `${config.MernBaseURL}/financialData/add`;
-      const res = await axios.post(url, payload, { headers: { "Content-Type": "application/json" } });
+      let url, res;
+      
+      if (isEditMode) {
+        // Update existing record with tracking
+        url = `${config.MernBaseURL}/financialData/update/${editData._id}`;
+        payload.updatedBy = user?.username;
+        payload.updatedAt = new Date().toISOString().split('T')[0];
+        payload.isUpdated = true;
+        res = await axios.put(url, payload, { headers: { "Content-Type": "application/json" } });
+      } else {
+        // Add new record
+        url = `${config.MernBaseURL}/financialData/add`;
+        payload.generatedBy = user?.username;
+        payload.generatedAt = new Date().toISOString().split('T')[0];
+        res = await axios.post(url, payload, { headers: { "Content-Type": "application/json" } });
+      }
+
       if (res?.data) {
         if (onSuccess) onSuccess(payload);
         onClose();
       }
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to submit. Please try again.");
-      console.error("AddFinancialData submit error", err);
+      setError(err?.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'add'}. Please try again.`);
+      console.error(`${isEditMode ? 'Update' : 'Add'} FinancialData submit error`, err);
     } finally {
       setSubmitting(false);
     }
@@ -96,7 +140,7 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
   return (
     <Modal show={true} onHide={onClose} size="lg" centered>
       <Modal.Header closeButton>
-        <Modal.Title>Add Financial Data</Modal.Title>
+        <Modal.Title>{isEditMode ? 'Edit Financial Data' : 'Add Financial Data'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {error && (
@@ -119,76 +163,101 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
-              <Form.Label className="fw-semibold text-primary">Trans. Type</Form.Label>
+              <Form.Label className="fw-semibold text-primary">Code Type</Form.Label>
               <Form.Select
-                name="transactionType"
-                value={formData.transactionType}
+                name="codeType"
+                value={formData.codeType}
                 onChange={handleChange}
                 required
               >
                 <option value="">Choose...</option>
-                {transactionTypes.map(opt => (
+                {codeTypes.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </Form.Select>
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
-              <Form.Label className="fw-semibold text-primary">Base Acc Name</Form.Label>
+              <Form.Label className="fw-semibold text-primary">Code Number</Form.Label>
+              <Form.Control
+                type="text"
+                name="codeNumber"
+                placeholder="Enter code number"
+                value={formData.codeNumber}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="col-sm-6 col-md-4 mb-3">
+              <Form.Label className="fw-semibold text-primary">From Account</Form.Label>
               <Form.Select
-                name="accountMode"
-                value={formData.accountMode}
+                name="fromAccount"
+                value={formData.fromAccount}
                 onChange={handleChange}
                 required
               >
                 <option value="">Choose...</option>
-                {accountModes.map(opt => (
+                {accountNames.map(opt => (
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </Form.Select>
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
-              <Form.Label className="fw-semibold text-primary">Head of Account</Form.Label>
+              <Form.Label className="fw-semibold text-primary">To Account</Form.Label>
               <Form.Select
-                name="headOfAccount"
-                value={formData.headOfAccount}
+                name="toAccount"
+                value={formData.toAccount}
                 onChange={handleChange}
                 required
               >
                 <option value="">Choose...</option>
-                {headOfAccountOptions.map(opt => (
+                {accountNames.map(opt => (
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </Form.Select>
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
-              <Form.Label className="fw-semibold text-primary">Code / Party</Form.Label>
-              <div className="input-group">
-                <Form.Select
-                  name="codePrefix"
-                  value={formData.codePrefix}
-                  onChange={handlePrefixChange}
-                  style={{ maxWidth: '80px' }}
-                >
-                  {codePrefixes.map(p => (
-                    <option key={p.value} value={p.value}>{p.label}</option>
-                  ))}
-                </Form.Select>
-                <Form.Control
-                  type="text"
-                  name="codeValue"
-                  placeholder={freeTextPrefixes.includes(formData.codePrefix) ? 'Enter name (e.g., Dwipayan)' : 'Only numbers allowed'}
-                  value={formData.codeValue}
-                  onChange={handleChange}
-                />
-              </div>
-              <small className="text-muted">
-                {freeTextPrefixes.includes(formData.codePrefix)
-                  ? `Saved as ${formData.codePrefix}-<text>`
-                  : `Example: ${formData.codePrefix}100023`}
-              </small>
+              <Form.Label className="fw-semibold text-primary">Credit/Debit</Form.Label>
+              <Form.Select
+                name="cd"
+                value={formData.cd}
+                onChange={handleChange}
+                required
+                disabled={financialReportConfig?.loanRelatedCodes?.includes(formData.codeType)}
+              >
+                <option value="">Choose...</option>
+                {cdOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </Form.Select>
+              {financialReportConfig?.loanRelatedCodes?.includes(formData.codeType) && (
+                <Form.Text className="text-muted">CD for loan or self</Form.Text>
+              )}
+            </div>
+            
+            <div className="col-sm-6 col-md-4 mb-3">
+              <Form.Label className="fw-semibold text-primary">Main Header</Form.Label>
+              <Form.Select
+                name="mainHeader"
+                value={formData.mainHeader}
+                onChange={handleChange}
+                required
+                disabled={!formData.cd}
+              >
+                <option value="">
+                  {!formData.cd ? 'Select C/D first...' : 'Choose...'}
+                </option>
+                {mainHeaderOptions.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </Form.Select>
+              {!formData.cd && (
+                <small className="text-muted">
+                  Please select Credit/Debit first to see main header options
+                </small>
+              )}
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
@@ -206,14 +275,13 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
             </div>
             
             <div className="col-12 mb-3">
-              <Form.Label className="fw-semibold text-primary">Description for Transaction</Form.Label>
+              <Form.Label className="fw-semibold text-primary">Sub Header (Description)</Form.Label>
               <Form.Control
                 type="text"
-                name="description"
-                placeholder="Enter description"
-                value={formData.description}
+                name="subHeader"
+                placeholder="Enter sub header description"
+                value={formData.subHeader}
                 onChange={handleChange}
-                required
               />
             </div>
           </div>
@@ -227,10 +295,10 @@ const AddFinancialDataModal = ({ onClose, onSuccess }) => {
           {submitting ? (
             <>
               <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              Submitting...
+              {isEditMode ? 'Updating...' : 'Submitting...'}
             </>
           ) : (
-            'Submit'
+            isEditMode ? 'Update' : 'Submit'
           )}
         </Button>
       </Modal.Footer>

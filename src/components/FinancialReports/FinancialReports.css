@@ -7,28 +7,29 @@
   --danger: #dc2626;
   --warning: #d97706;
   --info: #0284c7;
-  --background: #f8fafc;
+  --background: #f1f5f9;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border: #e2e8f0;
-  --table-header-bg: #ffe605;
-  --summary-bg: #ccd4ff;
+  --table-header-bg: #fef08a;
+  --summary-bg: #dbeafe;
+  --page-bg: #f8fafc;
 }
 
 /* Modern Dashboard Layout */
 .financial-reports-box {
-  padding: 2rem;
-  background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+  padding: 0.75rem;
+  background: var(--page-bg);
   min-height: 100vh;
 }
 
 /* Modern Header Section */
 .financial-reports-topbar {
   background: white;
-  border-radius: 24px;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
@@ -40,15 +41,14 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(to right, var(--success), var(--primary));
 }
 
-.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.financial-reports-title{font-size:1.1rem;font-weight:800;margin:0}
-.financial-reports-subtitle{font-size:.8rem;color:var(--text-secondary);margin:0}
-.financial-reports-topbar{padding:.75rem 1rem;margin-bottom:.75rem}
-.financial-reports-add-btn{padding:.5rem .9rem;border-radius:10px}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:0.5rem}
+.financial-reports-title{font-size:1rem;font-weight:700;margin:0;letter-spacing:-0.02em}
+.financial-reports-subtitle{font-size:0.7rem;color:var(--text-secondary);margin:0;margin-top:1px}
+.financial-reports-add-btn{padding:0.4rem 0.7rem;border-radius:8px}
 
 /* Modern Search Section */
 .financial-reports-search-box {
@@ -201,13 +201,14 @@
 
 .financial-reports-date-input {
   width: 100%;
-  padding: 10px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.8rem;
   color: var(--text-primary);
   background: white;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  min-width: 0;
 }
 
 .financial-reports-date-input:focus {
@@ -315,46 +316,50 @@
 /* Table Section */
 .table-container {
   background: white;
-  border-radius: 16px;
-  padding: 1.25rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border);
 }
 
-.table-container{padding:1rem}
-.financial-filters-row{gap:.5rem;margin:.5rem 0}
-.filter-item label{font-size:.8rem}
-.financial-reports-input,.financial-reports-select{    padding: 10px;
-  border-radius: 8px;
-  border: 2px solid #e3e8f0;}
+.financial-filters-row{gap:0.4rem;margin:0.4rem 0}
+.financial-reports-input,.financial-reports-select{padding:0.4rem 0.6rem;border-radius:6px;border:1px solid var(--border);font-size:0.8rem;min-width:0;width:100%;transition:all 0.15s ease}
 
   .financial-reports-date-input:focus,
-  .financial-reports-select:focus {
+  .financial-reports-select:focus,
+  .financial-reports-input:focus {
     outline: none;
-    border-color: var(--info);
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 .financial-reports-table {
   margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+.financial-reports-table tbody tr:hover {
+  background-color: #f8fafc;
+  transition: background-color 0.15s ease;
 }
 
 .financial-reports-table th {
   background: var(--table-header-bg);
-  padding: 1rem;
+  padding: 0.5rem 0.65rem;
   font-weight: 600;
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .financial-reports-table td {
-  padding: 0.4rem;
-  padding-left: 16px;
+  padding: 0.35rem 0.65rem;
   border: none;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
+  font-size: 0.875rem;
 }
 
 .action-btn {
@@ -381,22 +386,23 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
   border-top: 1px solid var(--border);
 }
 
 .pagination-info {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .btn-outline-primary {
   border-color: var(--primary);
   color: var(--primary);
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
   font-weight: 500;
+  font-size: 0.85rem;
   transition: all 0.2s ease;
 }
 
@@ -428,11 +434,11 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .financial-reports-box {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .financial-reports-topbar {
-    padding: 1.5rem;
+    padding: 0.65rem 0.75rem;
   }
 
   .financial-reports-search-box {
@@ -482,35 +488,47 @@
   }
 }
 
-.financial-reports-actions{display:flex;justify-content:flex-end;margin:1rem 0}
-.financial-reports-add-btn{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;border:none;padding:.75rem 1.25rem;border-radius:12px;font-weight:600;display:flex;align-items:center;gap:.5rem;cursor:pointer;transition:all .2s ease}
-.financial-reports-add-btn:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(37,99,235,.25)}
+.financial-reports-actions{display:flex;justify-content:flex-end;margin:0.5rem 0}
+.financial-reports-add-btn{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;border:none;padding:0.4rem 0.7rem;border-radius:8px;font-weight:600;display:flex;align-items:center;gap:0.3rem;cursor:pointer;transition:all .2s ease}
+.financial-reports-add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(37,99,235,.25)}
 
 .amount-credit{color:var(--success);font-weight:600}
 .amount-debit{color:var(--danger);font-weight:600}
+.amount-loan{color:var(--info);font-weight:600}
 
-.balance-summary{display:flex;align-items:center;justify-content:space-between;margin-top:0.5rem;padding:0.5rem;border:1px solid var(--border);border-radius:12px;background:var(--summary-bg)}
-.summary-title{font-weight:700;color:var(--text-primary)}
-.summary-items{display:flex;gap:1.5rem}
-@media (max-width:768px){.summary-items{flex-direction:column;gap:.5rem}}
+.balance-summary{display:flex;align-items:center;justify-content:space-between;margin-top:0.4rem;padding:0.45rem 0.65rem;border:1px solid var(--border);border-radius:8px;background:var(--summary-bg)}
+.summary-title{font-weight:600;color:var(--text-primary);font-size:0.85rem}
+.summary-items{display:flex;gap:1rem;font-size:0.85rem}
+@media (max-width:768px){.summary-items{flex-direction:column;gap:0.35rem}}
 
 /* card grid scalable (10% min width) */
-.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin:.5rem 0 .75rem}
-.summary-card{display:flex;gap:.5rem;align-items:center;background:white;border:1px solid var(--border);border-radius:10px;padding:.6rem .75rem}
-.summary-card-icon{font-size:1.25rem}
-.summary-card-label{font-size:.8rem}
-.summary-card-value{font-size:1rem}
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.4rem;margin:0.4rem 0 0.5rem}
+.summary-card{display:flex;gap:0.45rem;align-items:center;background:white;border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.6rem}
+.summary-card-icon{font-size:1.1rem}
+.summary-card-label{font-size:0.7rem}
+.summary-card-value{font-size:0.9rem;font-weight:700}
 
-.financial-filters-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0.75rem;margin-top:1rem;margin-bottom:1rem;align-items:end}
-.filter-item{display:flex;flex-direction:column;gap:0.4rem}
-.filter-actions{display:flex;gap:0.5rem;align-items:center}
-.filter-item label{font-weight:600;color:var(--text-primary)}
+.financial-filters-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0.5rem;margin-top:0;margin-bottom:0;align-items:end}
+.filter-item{display:flex;flex-direction:column;gap:0.25rem;min-width:0}
+.filter-actions{display:flex;gap:0.35rem;align-items:center}
+.filter-item label{font-weight:600;color:var(--text-primary);font-size:0.75rem;white-space:nowrap}
 @media (max-width: 992px){.financial-filters-row{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width: 640px){.financial-filters-row{grid-template-columns:1fr}}
 
-.financial-reports-actions{display:flex;gap:.5rem;align-items:center}
-.financial-reports-download-btn{background:linear-gradient(135deg,var(--info) 0%, var(--primary) 100%);color:#fff;border:none;padding:.5rem .9rem;border-radius:10px;font-weight:600;display:flex;align-items:center;gap:.4rem;cursor:pointer}
+.financial-reports-actions{display:flex;gap:0.35rem;align-items:center}
+.financial-reports-download-btn{background:linear-gradient(135deg,var(--info) 0%, var(--primary) 100%);color:#fff;border:none;padding:0.4rem 0.7rem;border-radius:8px;font-weight:600;display:flex;align-items:center;gap:0.3rem;cursor:pointer}
 .financial-reports-download-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(2,132,199,.25)}
+
+/* Icon-only buttons */
+.icon-btn{padding:0.45rem 0.6rem!important;min-width:auto!important;display:flex;align-items:center;justify-content:center}
+.icon-btn i{font-size:1rem;margin:0!important}
+.btn-outline-primary.icon-btn:hover{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
+.btn-outline-secondary{border-color:var(--text-secondary);color:var(--text-secondary)}
+.btn-outline-secondary:hover{background:var(--text-secondary);color:#fff;border-color:var(--text-secondary)}
+.btn-outline-success{border-color:var(--success);color:var(--success)}
+.btn-outline-success:hover{background:var(--success)!important;color:#fff!important;border-color:var(--success)!important}
+.financial-reports-add-btn.icon-btn{padding:0.45rem 0.6rem!important}
+.financial-reports-download-btn.icon-btn{padding:0.45rem 0.6rem!important}
 
 .filter-code-input{position:relative;display:flex;align-items:center}
 .filter-code-input .financial-reports-input{padding-right:2rem}
@@ -550,32 +568,103 @@
 .financial-reports-add-btn{ background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
 .financial-reports-download-btn{ background: linear-gradient(to right, #1D2671, #C33764);}
 
-.controls-row{display:grid;grid-template-columns: auto 1fr auto auto auto auto auto auto auto;gap:.5rem;align-items:end}
-.controls-title{display:flex;flex-direction:column;min-width:160px}
-.controls-actions{display:flex;gap:.4rem;align-items:center}
+/* New topbar header layout */
+.topbar-header{display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0}
+.controls-title{display:flex;flex-direction:column;}
+.header-actions{display:flex;gap:0.3rem;align-items:center;flex-shrink:0}
+
+/* Collapsible filters panel */
+.filters-panel{margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--border);animation:slideDown 0.2s ease}
+.filters-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.4rem;align-items:end}
 .financial-reports-title{
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
-.financial-reports-subtitle{font-size:.7rem}
+.financial-reports-subtitle{font-size:0.68rem}
 
+/* Filter toggle button */
+.filter-toggle-btn{border-color:var(--text-secondary)!important;color:var(--text-secondary)!important}
+.filter-toggle-btn:hover{border-color:var(--primary)!important;color:var(--primary)!important;background:transparent!important}
+.filter-toggle-btn i{transition:transform 0.2s ease}
+
+/* Responsive design for filters */
 @media (max-width:1200px){
-  .controls-row{grid-template-columns: auto 1fr auto auto auto auto auto;}
+  .filters-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media (max-width:992px){
-  .controls-row{grid-template-columns: auto 1fr auto auto auto;}
+  .filters-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:768px){
-  .controls-row{grid-template-columns: 1fr 1fr;align-items:center}
-  .controls-actions{grid-column:1 / -1;justify-content:flex-end}
+  .topbar-header{flex-direction:column;align-items:flex-start}
+  .header-actions{width:100%;justify-content:flex-end}
+  .filters-grid{grid-template-columns:1fr}
+  .filter-item{width:100%}
 }
 
 /* Section selector boxes */
-.fr-sections{display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
-.fr-section-box{border:1px solid var(--border);background:#fff;color:var(--text-primary);padding:.5rem .75rem;border-radius:10px;font-weight:600;cursor:pointer}
-.fr-section-box.active{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;border-color:transparent}
-.fr-placeholder{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;color:var(--text-secondary)}
+.fr-sections{display:flex;gap:0.35rem;margin-bottom:0.5rem;flex-wrap:wrap}
+.fr-section-box{border:1px solid var(--border);background:#fff;color:var(--text-primary);padding:0.4rem 0.65rem;border-radius:8px;font-weight:600;font-size:0.8rem;cursor:pointer;transition:all 0.2s ease}
+.fr-section-box.active{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(37,99,235,0.3)}
+.fr-section-box:hover:not(.active){background:var(--background);border-color:var(--primary)}
+.fr-placeholder{background:#fff;border:1px solid var(--border);border-radius:12px;padding:0.75rem;text-align:center;color:var(--text-secondary)}
+
+/* Action Buttons */
+.action-buttons{display:flex;gap:0.3rem;justify-content:center}
+.btn-action{border:none;background:transparent;padding:0.3rem 0.5rem;border-radius:5px;cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;justify-content:center}
+.btn-action i{font-size:0.9rem}
+.btn-edit{color:var(--info)}
+.btn-edit:hover{background:var(--info);color:#fff;transform:scale(1.08)}
+.btn-delete{color:var(--danger)}
+.btn-delete:hover{background:var(--danger);color:#fff;transform:scale(1.08)}
+
+/* Delete Confirmation Modal */
+.delete-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1100;animation:fadeIn 0.2s ease}
+.delete-modal{background:#fff;border-radius:16px;width:90%;max-width:500px;box-shadow:0 10px 40px rgba(0,0,0,0.2);animation:slideUp 0.3s ease}
+.delete-modal-header{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:2px solid var(--border)}
+.delete-modal-header h3{margin:0;font-size:1.3rem;color:var(--text-primary)}
+.close-btn{background:transparent;border:none;font-size:1.2rem;color:var(--text-secondary);cursor:pointer;padding:0.25rem;border-radius:4px;transition:all 0.2s ease}
+.close-btn:hover{background:var(--background);color:var(--danger)}
+.delete-modal-body{padding:1.5rem;text-align:center}
+.delete-icon{font-size:4rem;color:var(--warning);margin-bottom:1rem}
+.delete-modal-body p{margin:0.5rem 0;color:var(--text-primary)}
+.delete-details{background:var(--background);padding:1rem;border-radius:8px;margin:1rem 0;text-align:left}
+.delete-details p{margin:0.4rem 0;font-size:0.95rem}
+.delete-warning{font-size:0.85rem;color:var(--text-secondary);font-style:italic}
+.delete-modal-footer{display:flex;gap:0.75rem;justify-content:flex-end;padding:1rem 1.5rem;border-top:1px solid var(--border)}
+.btn-secondary{background:var(--background);color:var(--text-primary);border:1px solid var(--border);padding:0.6rem 1.25rem;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease}
+.btn-secondary:hover{background:var(--border);transform:translateY(-1px)}
+.btn-danger{background:var(--danger);color:#fff;border:none;padding:0.6rem 1.25rem;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;gap:0.4rem}
+.btn-danger:hover{background:#b91c1c;transform:translateY(-1px);box-shadow:0 4px 12px rgba(220,38,38,0.3)}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Custom scrollbar for table */
+.table-responsive {
+  overflow-x: auto;
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+}
+
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: var(--background);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
