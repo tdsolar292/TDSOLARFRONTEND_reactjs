@@ -496,6 +496,10 @@
 .amount-debit{color:var(--danger);font-weight:600}
 .amount-loan{color:var(--info);font-weight:600}
 
+/* Loan directional indicators */
+.amount-loan-positive{color:var(--success);font-weight:700}
+.amount-loan-negative{color:var(--danger);font-weight:700}
+
 .balance-summary{display:flex;align-items:center;justify-content:space-between;margin-top:0.4rem;padding:0.45rem 0.65rem;border:1px solid var(--border);border-radius:8px;background:var(--summary-bg)}
 .summary-title{font-weight:600;color:var(--text-primary);font-size:0.85rem}
 .summary-items{display:flex;gap:1rem;font-size:0.85rem}

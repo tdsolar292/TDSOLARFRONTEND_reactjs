@@ -82,6 +82,21 @@ const FinancialReports = () => {
   useEffect(() => { recomputeFromFiltered(); setPage(1); }, [filteredData]);
   useEffect(() => { setReports(paginate(filteredData)); }, [page]);
 
+  // Function to handle navigation from Summary tab with filters
+  const handleNavigateFromSummary = (filters) => {
+    setSection('creditDebit');
+    
+    // Apply filters
+    if (filters.cd) setCdFilter(filters.cd);
+    if (filters.fromAccount) setFromAccountFilter(filters.fromAccount);
+    if (filters.toAccount && !filters.fromAccount) setToAccountFilter(filters.toAccount);
+    if (filters.from) setStartDate(filters.from);
+    if (filters.to) setEndDate(filters.to);
+    
+    // Show filters panel
+    setShowFilters(true);
+  };
+
   const paginate = (list) => {
     const start = (page - 1) * pageSize;
     return list.slice(start, start + pageSize);
@@ -141,6 +156,67 @@ const FinancialReports = () => {
   });
 
   const formatAmount = (val) => { if (!val) return ""; try { return `₹${Number(val).toLocaleString()}`; } catch { return `${val}`; } };
+
+  // Format loan amount with directional symbol based on account perspective
+  const formatLoanAmount = (item, amount) => {
+    if (item.cd !== 'CD') return formatAmount(amount);
+    
+    // Determine the direction based on filtered account
+    const accountInFilter = fromAccountFilter || toAccountFilter;
+    
+    if (!accountInFilter) {
+      // No account filter, show from -> to perspective
+      return (
+        <span>
+          {formatAmount(amount)}
+          <i className="bi bi-arrow-right ms-1" style={{fontSize: '0.75rem', opacity: 0.7}}></i>
+        </span>
+      );
+    }
+    
+    // If filtered account is receiving (toAccount), show positive
+    if (item.toAccount === accountInFilter) {
+      return (
+        <span>
+          <i className="bi bi-arrow-down-circle me-1" style={{fontSize: '0.8rem'}}></i>
+          +{formatAmount(amount)}
+        </span>
+      );
+    }
+    
+    // If filtered account is giving (fromAccount), show negative
+    if (item.fromAccount === accountInFilter) {
+      return (
+        <span>
+          <i className="bi bi-arrow-up-circle me-1" style={{fontSize: '0.8rem'}}></i>
+          -{formatAmount(amount)}
+        </span>
+      );
+    }
+    
+    // If filtered account is in either from or to but not matching, show neutral
+    return formatAmount(amount);
+  };
+
+  // Get loan amount CSS class based on direction
+  const getLoanAmountClass = (item) => {
+    if (item.cd !== 'CD') return '';
+    
+    const accountInFilter = fromAccountFilter || toAccountFilter;
+    if (!accountInFilter) return 'amount-loan';
+    
+    // If filtered account is receiving (toAccount), show as positive/credit
+    if (item.toAccount === accountInFilter) {
+      return 'amount-loan-positive';
+    }
+    
+    // If filtered account is giving (fromAccount), show as negative/debit
+    if (item.fromAccount === accountInFilter) {
+      return 'amount-loan-negative';
+    }
+    
+    return 'amount-loan';
+  };
 
   const clearFilters = () => { 
     setFromAccountFilter(""); 
@@ -232,6 +308,14 @@ const FinancialReports = () => {
               title="Toggle Filters"
             >
               <i className={`bi ${showFilters ? 'bi-funnel-fill' : 'bi-funnel'}`}></i>
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-outline-success icon-btn" 
+              onClick={fetchData} 
+              title="Reload Data"
+            >
+              <i className="bi bi-arrow-clockwise"></i>
             </button>
             <button type="button" className="btn btn-outline-primary icon-btn" onClick={clearFilters} title="Clear Filters">
               <i className="bi bi-eraser"></i>
@@ -337,7 +421,22 @@ const FinancialReports = () => {
       <div className="table-container">
         <div className="table-responsive">
           <table className="table financial-reports-table">
-            <thead><tr>{tableDisplayHeaders.map((h, i) => (<th key={i} scope="col">{h}</th>))}</tr></thead>
+            <thead>
+              <tr>
+                {tableDisplayHeaders.map((h, i) => (
+                  <th key={i} scope="col">
+                    {h}
+                    {h === 'Amount' && (
+                      <i 
+                        className="bi bi-info-circle ms-1" 
+                        style={{fontSize: '0.75rem', opacity: 0.6, cursor: 'help'}}
+                        title="Loan transactions: ↓+ (received) | ↑- (given out)"
+                      ></i>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            </thead>
             <tbody>
               {reports.map((item, idx) => { const row = mapToRow(item); return (
                 <tr key={idx}>
@@ -348,7 +447,7 @@ const FinancialReports = () => {
                   <td><span className={row.cd === 'C' ? 'amount-credit' : row.cd === 'D' ? 'amount-debit' : 'amount-loan'}>{row.cd === 'C' ? 'C' : row.cd === 'D' ? 'D' : row.cd === 'CD' ? 'CD' : ''}</span></td>
                   <td>{row.mainHeader}</td>
                   <td>{row.subHeader}</td>
-                  <td><span className={row.cd === 'C' ? 'amount-credit' : row.cd === 'D' ? 'amount-debit' : 'amount-loan'}>{formatAmount(row.amount)}</span></td>
+                  <td><span className={row.cd === 'C' ? 'amount-credit' : row.cd === 'D' ? 'amount-debit' : getLoanAmountClass(item)}>{row.cd === 'CD' ? formatLoanAmount(item, row.amount) : formatAmount(row.amount)}</span></td>
                   <td>
                     <div className="action-buttons">
                       <button 
@@ -404,7 +503,7 @@ const FinancialReports = () => {
 
         </>
       ) : section === 'summary' ? (
-        <FinancialSummary />
+        <FinancialSummary onNavigateToReports={handleNavigateFromSummary} />
       ) : (
         <div className="fr-placeholder">
           <h3>{sections.find(s => s.key === section)?.label}</h3>

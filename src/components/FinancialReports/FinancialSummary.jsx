@@ -5,7 +5,7 @@ import config from "../../config";
 import financialReportConfig from "./financialReportConfig";
 import Spinner from "react-bootstrap/Spinner";
 
-const FinancialSummary = () => {
+const FinancialSummary = ({ onNavigateToReports }) => {
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
@@ -126,6 +126,19 @@ const FinancialSummary = () => {
     }
   };
 
+  const handleCardClick = (cdType) => {
+    if (onNavigateToReports) {
+      const filters = {
+        cd: cdType,
+        fromAccount: accountFilter,
+        toAccount: accountFilter,
+        from: startDate,
+        to: endDate
+      };
+      onNavigateToReports(filters);
+    }
+  };
+
   return (
     <div className="financial-summary-container">
       {/* Header with filters */}
@@ -199,7 +212,11 @@ const FinancialSummary = () => {
       {/* Main Metrics Cards */}
       <div className="fs-metrics-grid">
         {/* Total Credits Card */}
-        <div className="fs-metric-card credit-card">
+        <div 
+          className="fs-metric-card credit-card clickable" 
+          onClick={() => handleCardClick('C')}
+          title="Click to view credit transactions"
+        >
           <div className="fs-card-header">
             <div className="fs-card-icon">
               <i className="bi bi-arrow-down-circle"></i>
@@ -219,7 +236,11 @@ const FinancialSummary = () => {
         </div>
 
         {/* Total Debits Card */}
-        <div className="fs-metric-card debit-card">
+        <div 
+          className="fs-metric-card debit-card clickable" 
+          onClick={() => handleCardClick('D')}
+          title="Click to view debit transactions"
+        >
           <div className="fs-card-header">
             <div className="fs-card-icon">
               <i className="bi bi-arrow-up-circle"></i>
@@ -239,7 +260,11 @@ const FinancialSummary = () => {
         </div>
 
         {/* Balance Card */}
-        <div className={`fs-metric-card balance-card ${metrics.balance >= 0 ? 'positive' : 'negative'}`}>
+        <div 
+          className={`fs-metric-card balance-card ${metrics.balance >= 0 ? 'positive' : 'negative'} clickable`}
+          onClick={() => handleCardClick('')}
+          title="Click to view all transactions"
+        >
           <div className="fs-card-header">
             <div className="fs-card-icon">
               <i className="bi bi-wallet2"></i>
@@ -259,7 +284,11 @@ const FinancialSummary = () => {
         </div>
 
         {/* Loan & Self Transactions Card */}
-        <div className="fs-metric-card loan-card">
+        <div 
+          className="fs-metric-card loan-card clickable" 
+          onClick={() => handleCardClick('CD')}
+          title="Click to view loan/self transactions"
+        >
           <div className="fs-card-header">
             <div className="fs-card-icon">
               <i className="bi bi-arrow-left-right"></i>
