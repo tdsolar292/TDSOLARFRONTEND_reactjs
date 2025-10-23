@@ -19,7 +19,7 @@
 /* Modern Dashboard Layout */
 .financial-reports-box {
   padding: 0.75rem;
-  background: var(--page-bg);
+  background: #f1f5f9;
   min-height: 100vh;
 }
 
@@ -805,6 +805,8 @@
 .action-buttons{display:flex;gap:0.3rem;justify-content:center}
 .btn-action{border:none;background:transparent;padding:0.3rem 0.5rem;border-radius:5px;cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;justify-content:center}
 .btn-action i{font-size:0.9rem}
+.btn-view{color:var(--success)}
+.btn-view:hover{background:var(--success);color:#fff;transform:scale(1.08)}
 .btn-edit{color:var(--info)}
 .btn-edit:hover{background:var(--info);color:#fff;transform:scale(1.08)}
 .btn-delete{color:var(--danger)}
@@ -831,6 +833,31 @@
 
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* View Details Modal */
+.view-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1100;animation:fadeIn 0.2s ease;overflow-y:auto;padding:1rem}
+.view-modal{background:#fff;border-radius:12px;width:90%;max-width:500px;box-shadow:0 10px 40px rgba(0,0,0,0.2);animation:slideUp 0.3s ease;max-height:85vh;display:flex;flex-direction:column}
+.view-modal-header{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--success) 0%,#10b981 100%);color:#fff;border-radius:12px 12px 0 0}
+.view-modal-header h3{margin:0;font-size:1rem;color:#fff;display:flex;align-items:center;gap:0.5rem}
+.view-modal-header h3 i{font-size:1.1rem}
+.view-modal-header .close-btn{color:#fff}
+.view-modal-header .close-btn:hover{background:rgba(255,255,255,0.2)}
+.view-modal-body{padding:0.75rem;overflow-y:auto;flex:1}
+.view-details-table{width:100%;border-collapse:collapse;border:1px solid #000;font-size:0.8rem}
+.view-details-table tbody tr{border-bottom:1px solid #000}
+.view-details-table tbody tr:last-child{border-bottom:none}
+.view-details-table td{padding:2px 5px;border:1px solid #000;color:#000;vertical-align:top}
+.view-key{font-weight:600;width:35%;background:#f9fafb}
+.view-val{width:65%;word-break:break-word}
+.view-modal-footer{display:flex;gap:0.5rem;justify-content:flex-end;padding:0.75rem 1rem;border-top:1px solid var(--border);background:#f9fafb}
+
+/* Responsive view modal */
+@media (max-width:768px){
+  .view-modal{width:95%;max-width:none}
+  .view-modal-header{padding:0.65rem 0.85rem}
+  .view-modal-body{padding:0.65rem}
+  .view-modal-footer{padding:0.65rem}
+}
 
 /* Custom scrollbar for table */
 .table-responsive {

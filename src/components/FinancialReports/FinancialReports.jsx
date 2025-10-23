@@ -47,6 +47,7 @@ const FinancialReports = () => {
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null });
   const [sortColumn, setSortColumn] = useState('');
   const [sortDirection, setSortDirection] = useState('asc');
+  const [viewDetails, setViewDetails] = useState({ show: false, item: null });
 
   const sections = [
     { key: 'creditDebit', label: 'Credit & Debit Acc' },
@@ -310,6 +311,14 @@ const FinancialReports = () => {
     setDeleteConfirm({ show: false, item: null });
   };
 
+  const handleViewDetails = (item) => {
+    setViewDetails({ show: true, item });
+  };
+
+  const handleViewClose = () => {
+    setViewDetails({ show: false, item: null });
+  };
+
   const handleModalClose = () => {
     setShowModal(false);
     setEditingItem(null);
@@ -519,6 +528,14 @@ const FinancialReports = () => {
                     <div className="action-buttons">
                       <button 
                         type="button" 
+                        className="btn-action btn-view" 
+                        onClick={() => handleViewDetails(item)}
+                        title="View Details"
+                      >
+                        <i className="bi bi-eye"></i>
+                      </button>
+                      <button 
+                        type="button" 
                         className="btn-action btn-edit" 
                         onClick={() => handleEdit(item)}
                         title="Edit"
@@ -596,6 +613,62 @@ const FinancialReports = () => {
       {loading && (<div className="loading-overlay"><div className="loading-content"><Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner><p>Loading financial reports...</p></div></div>)}
 
       {showModal && (<AddFinancialDataModal editData={editingItem} onClose={handleModalClose} onSuccess={handleModalSuccess} />)}
+
+      {/* View Details Modal */}
+      {viewDetails.show && viewDetails.item && (
+        <div className="view-modal-overlay">
+          <div className="view-modal">
+            <div className="view-modal-header">
+              <h3><i className="bi bi-eye"></i> Transaction Details</h3>
+              <button type="button" className="close-btn" onClick={handleViewClose}>
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+            <div className="view-modal-body">
+              <table className="view-details-table">
+                <tbody>
+                  {Object.entries(viewDetails.item).map(([key, value]) => {
+                    // Skip internal fields
+                    if (key === '__v' || key === '_id') return null;
+                    
+                    // Format the key name
+                    const formattedKey = key
+                      .replace(/([A-Z])/g, ' $1')
+                      .replace(/^./, str => str.toUpperCase())
+                      .trim();
+                    
+                    // Format the value
+                    let formattedValue = value;
+                    if (value === null || value === undefined || value === '') {
+                      formattedValue = 'N/A';
+                    } else if (key === 'amount') {
+                      formattedValue = formatAmount(value);
+                    } else if (typeof value === 'boolean') {
+                      formattedValue = value ? 'Yes' : 'No';
+                    } else if (typeof value === 'object') {
+                      formattedValue = JSON.stringify(value, null, 2);
+                    } else {
+                      formattedValue = String(value);
+                    }
+                    
+                    return (
+                      <tr key={key}>
+                        <td className="view-key">{formattedKey}</td>
+                        <td className="view-val">{formattedValue}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="view-modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={handleViewClose}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
