@@ -45,6 +45,8 @@ const FinancialReports = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null });
+  const [sortColumn, setSortColumn] = useState('');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   const sections = [
     { key: 'creditDebit', label: 'Credit & Debit Acc' },
@@ -85,8 +87,39 @@ const FinancialReports = () => {
     }
     if (filters.from) filtered = filtered.filter(r => r.date >= filters.from);
     if (filters.to) filtered = filtered.filter(r => r.date <= filters.to);
+    
+    // Apply sorting
+    if (sortColumn) {
+      filtered = [...filtered].sort((a, b) => {
+        let aVal = a[sortColumn];
+        let bVal = b[sortColumn];
+        
+        // Handle amount as number
+        if (sortColumn === 'amount') {
+          aVal = Number(aVal || 0);
+          bVal = Number(bVal || 0);
+        }
+        
+        // Handle date
+        if (sortColumn === 'date') {
+          aVal = aVal || '';
+          bVal = bVal || '';
+        }
+        
+        // String comparison for other fields
+        if (typeof aVal === 'string') {
+          aVal = aVal.toLowerCase();
+          bVal = (bVal || '').toLowerCase();
+        }
+        
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    
     return filtered;
-  }, [allData, filters]);
+  }, [allData, filters, sortColumn, sortDirection]);
 
   useEffect(() => { fetchData(); }, []);
   useEffect(() => { recomputeFromFiltered(); setPage(1); }, [filteredData, pageSize]);
@@ -218,6 +251,27 @@ const FinancialReports = () => {
     setStartDate(""); 
     setEndDate(""); 
     setMainAccountFilter("");
+    setSortColumn('');
+    setSortDirection('asc');
+  };
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New column, default to ascending
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+    setPage(1); // Reset to first page when sorting
+  };
+
+  const getSortIcon = (column) => {
+    if (sortColumn !== column) return <i className="bi bi-arrow-down-up sort-icon-inactive"></i>;
+    return sortDirection === 'asc' 
+      ? <i className="bi bi-arrow-up sort-icon-active"></i>
+      : <i className="bi bi-arrow-down sort-icon-active"></i>;
   };
 
   const handleExportExcel = () => { exportFinancialDataToExcel({ rows: allData, user, filters }); };
@@ -423,11 +477,31 @@ const FinancialReports = () => {
           <table className="table financial-reports-table">
             <thead>
               <tr>
-                {tableDisplayHeaders.map((h, i) => (
-                  <th key={i} scope="col">
-                    {h}
-                  </th>
-                ))}
+                <th scope="col" className="sortable" onClick={() => handleSort('code')}>
+                  Code {getSortIcon('code')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('date')}>
+                  Date {getSortIcon('date')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('fromAccount')}>
+                  From Account {getSortIcon('fromAccount')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('toAccount')}>
+                  To Account {getSortIcon('toAccount')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('cd')}>
+                  C/D {getSortIcon('cd')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('mainHeader')}>
+                  Main Header {getSortIcon('mainHeader')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('subHeader')}>
+                  Sub Header {getSortIcon('subHeader')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('amount')}>
+                  Amount {getSortIcon('amount')}
+                </th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
