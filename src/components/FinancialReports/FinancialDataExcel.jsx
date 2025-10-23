@@ -137,6 +137,14 @@ function createSheetWithData(wb, sheetName, rows, username, now, monthName, time
     });
   });
 
+  // Add auto-filter to all columns (header row is row 5, columns A to H)
+  if (rows.length > 0) {
+    ws.autoFilter = {
+      from: { row: 5, column: 1 },
+      to: { row: 5, column: 8 }
+    };
+  }
+
   // Footer meta
   const metaStart = ws.rowCount + 2;
   ws.mergeCells(`A${metaStart}:H${metaStart}`);
