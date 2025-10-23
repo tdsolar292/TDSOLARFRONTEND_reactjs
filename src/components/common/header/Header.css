@@ -1,0 +1,241 @@
+/* Header Custom Styles */
+
+/* Backup Modal Overlay */
+.backup-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Backup Modal */
+.backup-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 85vh;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.backup-modal-large {
+  max-width: 850px;
+}
+
+/* Modal Header */
+.backup-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 2px solid #1e40af;
+}
+
+.backup-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backup-modal-header h3 i {
+  font-size: 1.3rem;
+}
+
+.backup-modal-header .close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.backup-modal-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+/* Modal Body */
+.backup-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Backup Table */
+.backup-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+}
+
+.backup-table thead {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+.backup-table thead th {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.backup-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.backup-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.backup-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.backup-table td {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  vertical-align: top;
+  font-size: 0.8rem;
+}
+
+.backup-key {
+  font-weight: 600;
+  width: 35%;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.backup-value {
+  width: 65%;
+  word-break: break-word;
+  color: #1e293b;
+}
+
+/* Modal Footer */
+.backup-modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f9fafb;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dropdown Item Button Styles */
+.dropdown-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Backup Download Button */
+.backup-download-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.backup-download-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.backup-download-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.backup-download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.backup-download-btn i {
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .backup-modal {
+    width: 95%;
+    max-width: none;
+  }
+
+  .backup-modal-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .backup-modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .backup-modal-body {
+    padding: 1rem;
+  }
+
+  .backup-table {
+    font-size: 0.75rem;
+  }
+
+  .backup-table td,
+  .backup-table th {
+    padding: 0.45rem 0.5rem;
+  }
+}
