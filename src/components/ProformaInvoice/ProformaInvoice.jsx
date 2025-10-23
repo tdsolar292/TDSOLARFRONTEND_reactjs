@@ -277,8 +277,18 @@ const handleSubmit_MERN = async (e) => {
       setFormData((prev) => ({
         ...prev,
         electricSupply, // Update the electricSupply field
+        applicationCost: electricSupply === 'CESC' 
+          ? 1180
+          : electricSupply === 'WBSEDCL' 
+          ? 590 
+          : '', // Clear if "NA" or default
+        fitnessCertificate: electricSupply === 'CESC' 
+          ? 2183
+          : electricSupply === 'WBSEDCL' 
+          ? 2832 
+          : '', // Clear if "NA" or default
         meterCost: electricSupply === 'CESC' 
-          ? 15340
+          ? 12178
           : electricSupply === 'WBSEDCL' 
           ? 11600 
           : '', // Clear if "NA" or default
