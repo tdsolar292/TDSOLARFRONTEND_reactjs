@@ -4,6 +4,7 @@ import axios from "axios";
 import config from "../../config";
 import financialReportConfig from "./financialReportConfig";
 import Spinner from "react-bootstrap/Spinner";
+import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const FinancialSummary = ({ onNavigateToReports }) => {
   // Get today's date in YYYY-MM-DD format
@@ -109,6 +110,38 @@ const FinancialSummary = ({ onNavigateToReports }) => {
       avgDebit,
       avgCD
     };
+  }, [filteredData]);
+
+  // Prepare chart data
+  const pieChartData = useMemo(() => [
+    { name: 'Credits', value: metrics.totalCredit, color: '#22c55e' },
+    { name: 'Debits', value: metrics.totalDebit, color: '#ef4444' },
+    { name: 'Loan/Self', value: metrics.totalCD, color: '#3b82f6' }
+  ].filter(item => item.value > 0), [metrics]);
+
+  const barChartData = useMemo(() => [
+    { name: 'Credit', amount: metrics.totalCredit, count: metrics.creditCount, fill: '#22c55e' },
+    { name: 'Debit', amount: metrics.totalDebit, count: metrics.debitCount, fill: '#ef4444' },
+    { name: 'Loan/Self', amount: metrics.totalCD, count: metrics.cdCount, fill: '#3b82f6' }
+  ], [metrics]);
+
+  // Monthly trend data
+  const trendData = useMemo(() => {
+    // Group transactions by month
+    const monthlyData = {};
+    filteredData.forEach(item => {
+      if (!item.date) return;
+      const month = item.date.substring(0, 7); // YYYY-MM
+      if (!monthlyData[month]) {
+        monthlyData[month] = { month, credit: 0, debit: 0, loan: 0 };
+      }
+      const amount = Number(item.amount || 0);
+      if (item.cd === 'C') monthlyData[month].credit += amount;
+      else if (item.cd === 'D') monthlyData[month].debit += amount;
+      else if (item.cd === 'CD') monthlyData[month].loan += amount;
+    });
+    
+    return Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
   }, [filteredData]);
 
   const clearFilters = () => {
@@ -304,6 +337,97 @@ const FinancialSummary = ({ onNavigateToReports }) => {
               <i className="bi bi-currency-exchange"></i>
               <span>Avg: {formatAmount(metrics.avgCD)}</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="fs-charts-section">
+        {/* Pie Chart - Distribution */}
+        <div className="fs-chart-card">
+          <div className="fs-chart-header">
+            <h3 className="fs-chart-title">
+              <i className="bi bi-pie-chart"></i>
+              Transaction Distribution
+            </h3>
+            <p className="fs-chart-subtitle">by Amount</p>
+          </div>
+          <div className="fs-chart-body">
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={pieChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                  outerRadius={90}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => formatAmount(value)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Bar Chart - Comparison */}
+        <div className="fs-chart-card">
+          <div className="fs-chart-header">
+            <h3 className="fs-chart-title">
+              <i className="bi bi-bar-chart"></i>
+              Transaction Comparison
+            </h3>
+            <p className="fs-chart-subtitle">Amount & Count</p>
+          </div>
+          <div className="fs-chart-body">
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={barChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="name" stroke="#64748b" />
+                <YAxis stroke="#64748b" />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'amount' ? formatAmount(value) : value,
+                    name === 'amount' ? 'Amount' : 'Transactions'
+                  ]}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                />
+                <Bar dataKey="amount" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Line Chart - Trends */}
+        <div className="fs-chart-card fs-chart-wide">
+          <div className="fs-chart-header">
+            <h3 className="fs-chart-title">
+              <i className="bi bi-graph-up"></i>
+              Monthly Trend (Last 6 Months)
+            </h3>
+            <p className="fs-chart-subtitle">Transaction Flow Over Time</p>
+          </div>
+          <div className="fs-chart-body">
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" stroke="#64748b" />
+                <YAxis stroke="#64748b" />
+                <Tooltip 
+                  formatter={(value) => formatAmount(value)}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                />
+                <Legend />
+                <Line type="monotone" dataKey="credit" stroke="#22c55e" strokeWidth={2} name="Credits" dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="debit" stroke="#ef4444" strokeWidth={2} name="Debits" dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="loan" stroke="#3b82f6" strokeWidth={2} name="Loan/Self" dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
