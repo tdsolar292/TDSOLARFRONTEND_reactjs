@@ -37,7 +37,7 @@ const FinancialReports = () => {
   const [summary, setSummary] = useState({ credit: 0, debit: 0, net: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -89,8 +89,8 @@ const FinancialReports = () => {
   }, [allData, filters]);
 
   useEffect(() => { fetchData(); }, []);
-  useEffect(() => { recomputeFromFiltered(); setPage(1); }, [filteredData]);
-  useEffect(() => { setReports(paginate(filteredData)); }, [page]);
+  useEffect(() => { recomputeFromFiltered(); setPage(1); }, [filteredData, pageSize]);
+  useEffect(() => { setReports(paginate(filteredData)); }, [page, pageSize]);
 
   // Function to handle navigation from Summary tab with filters
   const handleNavigateFromSummary = (filters) => {
@@ -477,20 +477,35 @@ const FinancialReports = () => {
         </div>
 
         <div className="pagination-container">
-          <div className="pagination-info">Showing {((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, total)} of {total} entries</div>
-          <nav>
-            <ul className="pagination">
-              <li className="page-item"><button className="btn btn-outline-primary" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>Previous</button></li>
+          <div className="pagination-left">
+            <span className="pagination-info">Showing {((page - 1) * pageSize) + 1}-{Math.min(page * pageSize, total)} of {total}</span>
+            <div className="page-size-selector">
+              <label>Show</label>
+              <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="page-size-select">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+          <div className="pagination-nav">
+            <button className="page-arrow" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} title="Previous">
+              <i className="bi bi-chevron-left"></i>
+            </button>
+            <div className="page-numbers">
               {buildPageList(page, totalPages).map((p, idx) => (
-                <li key={idx} className="page-item">
+                <React.Fragment key={idx}>
                   {p === '...'
-                    ? <span className="btn disabled" style={{ pointerEvents: 'none' }}>...</span>
-                    : <button className={`btn ${p === page ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setPage(p)}>{p}</button>}
-                </li>
+                    ? <span className="page-ellipsis">...</span>
+                    : <button className={`page-num ${p === page ? 'active' : ''}`} onClick={() => setPage(p)}>{p}</button>}
+                </React.Fragment>
               ))}
-              <li className="page-item"><button className="btn btn-outline-primary" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>Next</button></li>
-            </ul>
-          </nav>
+            </div>
+            <button className="page-arrow" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} title="Next">
+              <i className="bi bi-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </div>
 
