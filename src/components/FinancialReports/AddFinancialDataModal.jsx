@@ -53,14 +53,6 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
     if (!formData.cd) return [];
     if (formData.cd === 'D') return financialReportConfig?.mainHeadersDebit || [];
     if (formData.cd === 'C') return financialReportConfig?.mainHeadersCredit || [];
-    if (formData.cd === 'CD') {
-      // For CD, combine all main header options
-      return [
-        ...(financialReportConfig?.mainHeadersDebit || []),
-        ...(financialReportConfig?.mainHeadersCredit || []),
-        ...(financialReportConfig?.mainHeadersLoan || [])
-      ];
-    }
     return [];
   };
 
@@ -68,27 +60,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // If codeType changes and is a loan-related code, auto-select CD
-    if (name === 'codeType') {
-      const loanRelatedCodes = financialReportConfig?.loanRelatedCodes || [];
-      if (loanRelatedCodes.includes(value)) {
-        setFormData(prev => ({ ...prev, [name]: value, cd: 'CD', mainHeader: '' }));
-        return;
-      }
-    }
-    
-    // If cd changes, reset mainHeader since options will change
-    if (name === 'cd') {
-      setFormData(prev => ({ ...prev, [name]: value, mainHeader: '', subHeader: '' }));
-    } 
-    // If mainHeader changes, auto-fill subHeader with same value
-    else if (name === 'mainHeader') {
-      setFormData(prev => ({ ...prev, [name]: value, subHeader: value }));
-    } 
-    else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -225,16 +197,12 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
                 value={formData.cd}
                 onChange={handleChange}
                 required
-                disabled={financialReportConfig?.loanRelatedCodes?.includes(formData.codeType)}
               >
                 <option value="">Choose...</option>
                 {cdOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </Form.Select>
-              {financialReportConfig?.loanRelatedCodes?.includes(formData.codeType) && (
-                <Form.Text className="text-muted">CD for loan or self</Form.Text>
-              )}
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">

@@ -43,12 +43,8 @@ const financialReportConfig = {
   // Credit/Debit options
   creditDebitOptions: [
     { value: 'C', label: 'Credit' },
-    { value: 'D', label: 'Debit' },
-    { value: 'CD', label: 'Credit/Debit' }
+    { value: 'D', label: 'Debit' }
   ],
-
-  // Code types that should auto-select CD (doesn't affect account totals)
-  loanRelatedCodes: ['SELF', 'UNSECURE LOAN', 'SECURE LOAN'],
 
   // Main header categories for Debit (D)
   mainHeadersDebit: [
@@ -92,11 +88,6 @@ const financialReportConfig = {
     'PAYMENT AGAINST CONSULTANCY',
     'PAYMENT AGAINST CIVIL MATTERS',
     'CASH DEPOSIT'
-  ],
-
-  // Main header categories for Credit/Debit (C/D) - Loan related
-  mainHeadersLoan: [
-    'CREDIT CARD PAYMENT'
   ],
 };
 

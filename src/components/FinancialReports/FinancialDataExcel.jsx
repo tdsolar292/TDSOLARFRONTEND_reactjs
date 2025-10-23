@@ -19,14 +19,9 @@ function setBorder(cell) {
   };
 }
 
-export default async function exportFinancialDataToExcelStyled({ rows = [], user = {}, filters = {} }) {
-  const username = user?.name || user?.username || 'Unknown';
-  const now = new Date();
-  const monthName = now.toLocaleString('en-US', { month: 'long' });
-  const timestamp = now.toLocaleString();
-
-  const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet('FINANCIAL REPORT', { properties: { defaultRowHeight: 18 } });
+// Helper function to create a single sheet with data
+function createSheetWithData(wb, sheetName, rows, username, now, monthName, timestamp) {
+  const ws = wb.addWorksheet(sheetName, { properties: { defaultRowHeight: 18 } });
 
   // Column widths
   ws.columns = [
@@ -63,7 +58,7 @@ export default async function exportFinancialDataToExcelStyled({ rows = [], user
   ws.getCell('C2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.yellow } };
 
   ws.mergeCells('E2:H2');
-  ws.getCell('E2').value = 'ALL TRANSACTIONS';
+  ws.getCell('E2').value = sheetName === 'All Accounts' ? 'ALL TRANSACTIONS' : sheetName.toUpperCase();
   ws.getCell('E2').alignment = { horizontal: 'right', vertical: 'middle' };
   ws.getCell('E2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.black } };
   ws.getCell('E2').font = { bold: true, color: { argb: COLORS.white } };
@@ -79,9 +74,35 @@ export default async function exportFinancialDataToExcelStyled({ rows = [], user
   ws.getCell('F3').alignment = { horizontal: 'center' };
   ws.getCell('F3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.yellow } };
 
-  // Summary band (row 4)
-  const creditTotal = rows.reduce((a, r) => a + (r.cd === 'C' ? Number(r.amount || 0) : 0), 0);
-  const debitTotal = rows.reduce((a, r) => a + (r.cd === 'D' ? Number(r.amount || 0) : 0), 0);
+  // Helper function to get dynamic C/D based on sheet (account) perspective
+  const getDynamicCD = (transaction, accountName) => {
+    // For "All Accounts" sheet, use original C/D
+    if (accountName === 'All Accounts') return transaction.cd;
+    
+    // For account-specific sheets, show perspective from that account
+    // If account is receiving (toAccount), it's a Credit for them
+    if (transaction.toAccount === accountName) {
+      return 'C';
+    }
+    
+    // If account is giving (fromAccount), it's a Debit for them
+    if (transaction.fromAccount === accountName) {
+      return 'D';
+    }
+    
+    // Default to original
+    return transaction.cd;
+  };
+
+  // Summary band (row 4) - using dynamic C/D
+  const creditTotal = rows.reduce((a, r) => {
+    const dynamicCD = getDynamicCD(r, sheetName);
+    return a + (dynamicCD === 'C' ? Number(r.amount || 0) : 0);
+  }, 0);
+  const debitTotal = rows.reduce((a, r) => {
+    const dynamicCD = getDynamicCD(r, sheetName);
+    return a + (dynamicCD === 'D' ? Number(r.amount || 0) : 0);
+  }, 0);
   const netTotal = creditTotal - debitTotal;
 
   ws.mergeCells('A4:B4'); ws.getCell('A4').value = `CREDIT: ${creditTotal.toLocaleString()}`; ws.getCell('A4').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.credit } }; ws.getCell('A4').font = { bold: true, color: { argb: COLORS.white } }; ws.getCell('A4').alignment = { horizontal: 'center' };
@@ -100,15 +121,16 @@ export default async function exportFinancialDataToExcelStyled({ rows = [], user
   // Data rows
   rows.forEach((r) => {
     const amount = Number(r.amount || 0);
-    const row = ws.addRow([r.code, r.date, r.fromAccount, r.toAccount, r.cd, r.mainHeader, r.subHeader, amount]);
+    const dynamicCD = getDynamicCD(r, sheetName);
+    const row = ws.addRow([r.code, r.date, r.fromAccount, r.toAccount, dynamicCD, r.mainHeader, r.subHeader, amount]);
     row.eachCell((cell, col) => {
       setBorder(cell);
       if (col === 5) { // C/D column
-        cell.font = { color: { argb: r.cd === 'C' ? 'FF0B8A00' : 'FFB91C1C' }, bold: true };
+        cell.font = { color: { argb: dynamicCD === 'C' ? 'FF0B8A00' : 'FFB91C1C' }, bold: true };
         cell.alignment = { horizontal: 'center' };
       }
       if (col === 8) { // Amount column
-        cell.font = { color: { argb: r.cd === 'C' ? 'FF0B8A00' : 'FFB91C1C' }, bold: true };
+        cell.font = { color: { argb: dynamicCD === 'C' ? 'FF0B8A00' : 'FFB91C1C' }, bold: true };
         cell.numFmt = '#,##0.00';
       }
       if (col === 2) cell.numFmt = 'dd-mm-yyyy';
@@ -120,6 +142,42 @@ export default async function exportFinancialDataToExcelStyled({ rows = [], user
   ws.mergeCells(`A${metaStart}:H${metaStart}`);
   ws.getCell(`A${metaStart}`).value = `Downloaded: ${timestamp} | By: ${username}`;
   ws.getCell(`A${metaStart}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLORS.yellow } };
+}
+
+export default async function exportFinancialDataToExcelStyled({ rows = [], user = {}, filters = {} }) {
+  const username = user?.name || user?.username || 'Unknown';
+  const now = new Date();
+  const monthName = now.toLocaleString('en-US', { month: 'long' });
+  const timestamp = now.toLocaleString();
+
+  const wb = new ExcelJS.Workbook();
+  
+  // Get all unique account names
+  const accountsSet = new Set();
+  rows.forEach(row => {
+    if (row.fromAccount) accountsSet.add(row.fromAccount);
+    if (row.toAccount) accountsSet.add(row.toAccount);
+  });
+  const accounts = Array.from(accountsSet).sort();
+  
+  // Create a sheet for each account
+  accounts.forEach(account => {
+    // Filter rows where this account is involved (either from or to)
+    const accountRows = rows.filter(row => 
+      row.fromAccount === account || row.toAccount === account
+    );
+    
+    if (accountRows.length > 0) {
+      // Sanitize sheet name (Excel has restrictions: max 31 chars, no special chars)
+      const sanitizedName = account.substring(0, 31).replace(/[\\/*?:\[\]]/g, '_');
+      createSheetWithData(wb, sanitizedName, accountRows, username, now, monthName, timestamp);
+    }
+  });
+  
+  // Create an "All Accounts" summary sheet at the end
+  if (rows.length > 0) {
+    createSheetWithData(wb, 'All Accounts', rows, username, now, monthName, timestamp);
+  }
 
   // File
   const buffer = await wb.xlsx.writeBuffer();

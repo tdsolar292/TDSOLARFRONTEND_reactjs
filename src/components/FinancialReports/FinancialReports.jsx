@@ -26,6 +26,7 @@ const FinancialReports = () => {
   const [cdFilter, setCdFilter] = useState("");
   const [mainHeaderFilter, setMainHeaderFilter] = useState("");
   const [codeFilter, setCodeFilter] = useState("");
+  const [mainAccountFilter, setMainAccountFilter] = useState("");
 
   const [cardData, setCardData] = useState(cardDataTemplate);
   const [reports, setReports] = useState([]);
@@ -60,11 +61,20 @@ const FinancialReports = () => {
     cd: cdFilter, 
     mainHeader: mainHeaderFilter, 
     from: startDate, 
-    to: endDate 
-  }), [codeFilter, fromAccountFilter, toAccountFilter, cdFilter, mainHeaderFilter, startDate, endDate]);
+    to: endDate,
+    mainAccount: mainAccountFilter
+  }), [codeFilter, fromAccountFilter, toAccountFilter, cdFilter, mainHeaderFilter, startDate, endDate, mainAccountFilter]);
 
   const filteredData = useMemo(() => {
     let filtered = allData;
+    
+    // Main Account filter - shows all transactions involving this account
+    if (filters.mainAccount) {
+      filtered = filtered.filter(r => 
+        r.fromAccount === filters.mainAccount || r.toAccount === filters.mainAccount
+      );
+    }
+    
     if (filters.fromAccount) filtered = filtered.filter(r => r.fromAccount === filters.fromAccount);
     if (filters.toAccount) filtered = filtered.filter(r => r.toAccount === filters.toAccount);
     if (filters.cd) filtered = filtered.filter(r => r.cd === filters.cd);
@@ -133,9 +143,33 @@ const FinancialReports = () => {
   };
 
   const recomputeFromFiltered = () => {
-    // Exclude CD (loan) transactions - they don't affect account balance
-    const totalCredit = filteredData.reduce((acc, r) => acc + (r.cd === 'C' ? Number(r.amount || 0) : 0), 0);
-    const totalDebit = filteredData.reduce((acc, r) => acc + (r.cd === 'D' ? Number(r.amount || 0) : 0), 0);
+    // Calculate totals with dynamic C/D when Main Account filter is active
+    const totalCredit = filteredData.reduce((acc, r) => {
+      // Dynamic C/D based on Main Account perspective
+      if (mainAccountFilter) {
+        if (r.toAccount === mainAccountFilter) {
+          return acc + Number(r.amount || 0); // Money coming in = Credit
+        }
+        return acc; // Money going out counted in debit
+      }
+      
+      // Default: use original C/D
+      return acc + (r.cd === 'C' ? Number(r.amount || 0) : 0);
+    }, 0);
+    
+    const totalDebit = filteredData.reduce((acc, r) => {
+      // Dynamic C/D based on Main Account perspective
+      if (mainAccountFilter) {
+        if (r.fromAccount === mainAccountFilter) {
+          return acc + Number(r.amount || 0); // Money going out = Debit
+        }
+        return acc; // Money coming in counted in credit
+      }
+      
+      // Default: use original C/D
+      return acc + (r.cd === 'D' ? Number(r.amount || 0) : 0);
+    }, 0);
+    
     const net = totalCredit - totalDebit;
     setSummary({ credit: totalCredit, debit: totalDebit, net });
     setTotal(filteredData.length);
@@ -157,65 +191,22 @@ const FinancialReports = () => {
 
   const formatAmount = (val) => { if (!val) return ""; try { return `₹${Number(val).toLocaleString()}`; } catch { return `${val}`; } };
 
-  // Format loan amount with directional symbol based on account perspective
-  const formatLoanAmount = (item, amount) => {
-    if (item.cd !== 'CD') return formatAmount(amount);
-    
-    // Determine the direction based on filtered account
-    const accountInFilter = fromAccountFilter || toAccountFilter;
-    
-    if (!accountInFilter) {
-      // No account filter, show from -> to perspective
-      return (
-        <span>
-          {formatAmount(amount)}
-          <i className="bi bi-arrow-right ms-1" style={{fontSize: '0.75rem', opacity: 0.7}}></i>
-        </span>
-      );
+  // Get dynamic C/D based on Main Account perspective
+  const getDynamicCD = (item) => {
+    // If Main Account filter is active, show perspective from that account
+    if (mainAccountFilter) {
+      // If main account is receiving (toAccount), it's a Credit for them
+      if (item.toAccount === mainAccountFilter) {
+        return 'C';
+      }
+      // If main account is giving (fromAccount), it's a Debit for them
+      if (item.fromAccount === mainAccountFilter) {
+        return 'D';
+      }
     }
     
-    // If filtered account is receiving (toAccount), show positive
-    if (item.toAccount === accountInFilter) {
-      return (
-        <span>
-          <i className="bi bi-arrow-down-circle me-1" style={{fontSize: '0.8rem'}}></i>
-          +{formatAmount(amount)}
-        </span>
-      );
-    }
-    
-    // If filtered account is giving (fromAccount), show negative
-    if (item.fromAccount === accountInFilter) {
-      return (
-        <span>
-          <i className="bi bi-arrow-up-circle me-1" style={{fontSize: '0.8rem'}}></i>
-          -{formatAmount(amount)}
-        </span>
-      );
-    }
-    
-    // If filtered account is in either from or to but not matching, show neutral
-    return formatAmount(amount);
-  };
-
-  // Get loan amount CSS class based on direction
-  const getLoanAmountClass = (item) => {
-    if (item.cd !== 'CD') return '';
-    
-    const accountInFilter = fromAccountFilter || toAccountFilter;
-    if (!accountInFilter) return 'amount-loan';
-    
-    // If filtered account is receiving (toAccount), show as positive/credit
-    if (item.toAccount === accountInFilter) {
-      return 'amount-loan-positive';
-    }
-    
-    // If filtered account is giving (fromAccount), show as negative/debit
-    if (item.fromAccount === accountInFilter) {
-      return 'amount-loan-negative';
-    }
-    
-    return 'amount-loan';
+    // Default to original C/D
+    return item.cd;
   };
 
   const clearFilters = () => { 
@@ -226,9 +217,10 @@ const FinancialReports = () => {
     setCodeFilter(""); 
     setStartDate(""); 
     setEndDate(""); 
+    setMainAccountFilter("");
   };
 
-  const handleExportExcel = () => { exportFinancialDataToExcel({ rows: filteredData, user, filters }); };
+  const handleExportExcel = () => { exportFinancialDataToExcel({ rows: allData, user, filters }); };
 
   const handleEdit = (item) => {
     setEditingItem(item);
@@ -347,6 +339,15 @@ const FinancialReports = () => {
                 <datalist id="code-options">{codeOptions.map(code => (<option key={code} value={code} />))}</datalist>
               </div>
 
+              {/* Main Account */}
+              <div className="filter-item">
+                <label>Main Account</label>
+                <select className="financial-reports-select" value={mainAccountFilter} onChange={(e) => { setMainAccountFilter(e.target.value); setPage(1);} }>
+                  <option value="">All</option>
+                  {accountOptions.map(acc => (<option key={acc} value={acc}>{acc}</option>))}
+                </select>
+              </div>
+
               {/* From Account */}
               <div className="filter-item">
                 <label>From Account</label>
@@ -372,7 +373,6 @@ const FinancialReports = () => {
                   <option value="">All</option>
                   <option value="C">Credit</option>
                   <option value="D">Debit</option>
-                  <option value="CD">Loan (CD)</option>
                 </select>
               </div>
 
@@ -426,13 +426,6 @@ const FinancialReports = () => {
                 {tableDisplayHeaders.map((h, i) => (
                   <th key={i} scope="col">
                     {h}
-                    {h === 'Amount' && (
-                      <i 
-                        className="bi bi-info-circle ms-1" 
-                        style={{fontSize: '0.75rem', opacity: 0.6, cursor: 'help'}}
-                        title="Loan transactions: ↓+ (received) | ↑- (given out)"
-                      ></i>
-                    )}
                   </th>
                 ))}
               </tr>
@@ -444,10 +437,10 @@ const FinancialReports = () => {
                   <td>{row.date}</td>
                   <td>{row.fromAccount}</td>
                   <td>{row.toAccount}</td>
-                  <td><span className={row.cd === 'C' ? 'amount-credit' : row.cd === 'D' ? 'amount-debit' : 'amount-loan'}>{row.cd === 'C' ? 'C' : row.cd === 'D' ? 'D' : row.cd === 'CD' ? 'CD' : ''}</span></td>
+                  <td><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
                   <td>{row.mainHeader}</td>
                   <td>{row.subHeader}</td>
-                  <td><span className={row.cd === 'C' ? 'amount-credit' : row.cd === 'D' ? 'amount-debit' : getLoanAmountClass(item)}>{row.cd === 'CD' ? formatLoanAmount(item, row.amount) : formatAmount(row.amount)}</span></td>
+                  <td><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{formatAmount(row.amount)}</span></td>
                   <td>
                     <div className="action-buttons">
                       <button 
