@@ -225,6 +225,11 @@ const FinancialReports = () => {
 
   const formatAmount = (val) => { if (!val) return ""; try { return `₹${Number(val).toLocaleString()}`; } catch { return `${val}`; } };
 
+  // Check if data was generated from Payment Receipt
+  const isFromPaymentReceipt = (item) => {
+    return item.generatedBy && typeof item.generatedBy === 'string' && item.generatedBy.toLowerCase().includes('payment receipt');
+  };
+
   // Get dynamic C/D based on Main Account perspective
   const getDynamicCD = (item) => {
     // If Main Account filter is active, show perspective from that account
@@ -515,8 +520,32 @@ const FinancialReports = () => {
             </thead>
             <tbody>
               {reports.map((item, idx) => { const row = mapToRow(item); return (
-                <tr key={idx}>
-                  <td>{row.code}</td>
+                <tr key={idx} className={isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {row.code}
+                      {isFromPaymentReceipt(item) && (
+                        <span 
+                          className="payment-receipt-badge" 
+                          title={`Generated from Payment Receipt by ${item.generatedBy}`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            backgroundColor: '#e3f2fd',
+                            color: '#1976d2',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          <i className="bi bi-receipt" style={{ marginRight: '3px' }}></i>
+                          PR
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td>{row.date}</td>
                   <td>{row.fromAccount}</td>
                   <td>{row.toAccount}</td>

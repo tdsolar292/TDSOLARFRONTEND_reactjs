@@ -32,7 +32,9 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
     clientPinCode: '',
     proformaInvoiceDB_id:'',//ProformaInvoiceDB_ID
     otp: '',
-    sendMailToClient: ''
+    sendMailToClient: '',
+    toAccount: '', // For financial data
+    mainHeader: '' // For financial data
   });
 
   // Set dummy data on component mount (keep paymentDate as today for localhost)--REMOVED on 04/08/205
@@ -118,8 +120,12 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
     formData.paymentMode = formData.paymentMode === 'Others' ? formData.PaymentModeOther : formData.paymentMode;
     formData.receiptGeneratedBy = formData.receiptGeneratedBy === 'Others' ? formData.ReceiptGeneratedByOther : formData.receiptGeneratedBy;
 
-    await axios
-      .post(
+    // Prepare promises array
+    const promises = [];
+
+    // Always call payment receipt API
+    promises.push(
+      axios.post(
         `${config.MernBaseURL}/paymentReceipt/create`,
         { ...formData, formType: 'pr' },
         {
@@ -130,12 +136,52 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
           responseType: 'blob'
         }
       )
-      .then((response) => {
+    );
+
+    // If payment mode is not Cash or Others, also call financial data API
+    const paymentMode = formData.paymentMode === 'Others' ? formData.PaymentModeOther : formData.paymentMode;
+    if (paymentMode.toLowerCase() !== 'cash' && formData.paymentMode !== 'Others') {
+      const currentDate = new Date();
+      const financialData = {
+        code: formData.clientId,
+        date: formData.paymentDate,
+        fromAccount: "NA",
+        toAccount: formData.toAccount,
+        cd: "C",
+        mainHeader: formData.mainHeader,
+        subHeader: formData.mainHeader,
+        amount: Number(formData.amount),
+        generatedBy: `${formData.receiptGeneratedBy} Added from Payment Receipt`,
+        generatedAt: currentDate.toISOString(),
+        isUpdated: false,
+        updatedBy: "",
+        updatedAt: "",
+        isDeleted: false,
+        deletedBy: "",
+        deletedAt: ""
+      };
+
+      promises.push(
+        axios.post(
+          `${config.MernBaseURL}/financialData/add`,
+          financialData,
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+      );
+    }
+
+    // Execute API calls in parallel
+    await Promise.all(promises)
+      .then((responses) => {
         updateInvoiceStatus(formData?.proformaInvoiceDB_id,'active');//Status Update proforma Invoice DB id
-        const blob = response.data;
+        const blob = responses[0].data;
         const fileURL = window.URL.createObjectURL(blob);
         window.open(fileURL, '_blank');
-        setStatus(`✅ Success: Payment Receipt Created`);
+        setStatus(`✅ Success: Payment Receipt Created${responses.length > 1 ? ' and Financial Data Added' : ''}`);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -170,7 +216,9 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
       clientState: 'West Bengal',
       clientPinCode: '',
       otp: '',
-      sendMailToClient: ''
+      sendMailToClient: '',
+      toAccount: '',
+      mainHeader: ''
     });
     setStatus('');
   };
@@ -550,6 +598,77 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
                   />
                 </div>
               </div>
+
+              {/* Conditional To Account Dropdown */}
+              {formData.paymentMode && formData.paymentMode.toLowerCase() !== 'cash' && formData.paymentMode !== 'Others' && (
+                <div className="col-sm-6 col-md-4 mb-3">
+                  <label className="form-label fw-semibold text-primary" htmlFor="toAccount">
+                    To Account
+                  </label>
+                  <div className="input-group shadow-sm">
+                    <span className="input-group-text bg-light border-0">
+                      <i className="bi bi-bank"></i>
+                    </span>
+                    <select
+                      className="form-select border-0 payment-input"
+                      id="toAccount"
+                      name="toAccount"
+                      value={formData.toAccount}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Choose...</option>
+                      <option value="NA">NA</option>
+                      <option value="HDFC CREDIT CARD">HDFC CREDIT CARD</option>
+                      <option value="INDUSLND BANK CREDIT CARD">INDUSLND BANK CREDIT CARD</option>
+                      <option value="PAYTM">PAYTM</option>
+                      <option value="CASH FOR TD">CASH FOR TD</option>
+                      <option value="SBI SA">SBI SA</option>
+                      <option value="SBI SA PPF">SBI SA PPF</option>
+                      <option value="SBI SA CREDIT CARD">SBI SA CREDIT CARD</option>
+                      <option value="HDFC HOME LOAN">HDFC HOME LOAN</option>
+                      <option value="HDFC HOME LOAN INSURANCE">HDFC HOME LOAN INSURANCE</option>
+                      <option value="SBI CA">SBI CA</option>
+                      <option value="PNB SA">PNB SA</option>
+                      <option value="PNB APY">PNB APY</option>
+                      <option value="PNB SSA">PNB SSA</option>
+                      <option value="LIC 3215">LIC 3215</option>
+                      <option value="LIC 7000">LIC 7000</option>
+                      <option value="ICICI SA">ICICI SA</option>
+                      <option value="RUPA CA">RUPA CA</option>
+                      <option value="C/A FD-250000">C/A FD-250000</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Conditional Main Header Dropdown */}
+              {formData.paymentMode && formData.paymentMode.toLowerCase() !== 'cash' && formData.paymentMode !== 'Others' && (
+                <div className="col-sm-6 col-md-4 mb-3">
+                  <label className="form-label fw-semibold text-primary" htmlFor="mainHeader">
+                    Main Header
+                  </label>
+                  <div className="input-group shadow-sm">
+                    <span className="input-group-text bg-light border-0">
+                      <i className="bi bi-folder"></i>
+                    </span>
+                    <select
+                      className="form-select border-0 payment-input"
+                      id="mainHeader"
+                      name="mainHeader"
+                      value={formData.mainHeader}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Choose...</option>
+                      <option value="PAYMENT AGAINST SOLAR INSTALLATION">PAYMENT AGAINST SOLAR INSTALLATION</option>
+                      <option value="PAYMENT AGAINST CONSULTANCY">PAYMENT AGAINST CONSULTANCY</option>
+                      <option value="PAYMENT AGAINST CIVIL MATTERS">PAYMENT AGAINST CIVIL MATTERS</option>
+                      <option value="CASH DEPOSIT">CASH DEPOSIT</option>
+                    </select>
+                  </div>
+                </div>
+              )}
 
               <div className="col-sm-6 col-md-4 mb-3">
                 <label className="form-label fw-semibold text-primary" htmlFor="receiptGeneratedBy">
