@@ -86,6 +86,59 @@ const FinancialSummary = ({ onNavigateToReports }) => {
     );
     const balance = totalCredit - totalDebit;
     
+    // Calculate Secure Loan (exclude UNSECURE)
+    // Loan taken (C) is negative (debt), Payment made (D) is positive (reduces debt)
+    const secureLoanTaken = filteredData.reduce((acc, r) => {
+      if (r.code && r.code.toUpperCase().includes('SECURE') && 
+          !r.code.toUpperCase().includes('UNSECURE') &&
+          r.code.toUpperCase().includes('LOAN') && 
+          !r.code.toUpperCase().includes('PAYMENT') && r.cd === 'C') {
+        return acc + Number(r.amount || 0);
+      }
+      return acc;
+    }, 0);
+    
+    const secureLoanPayment = filteredData.reduce((acc, r) => {
+      if (r.code && r.code.toUpperCase().includes('SECURE') && 
+          !r.code.toUpperCase().includes('UNSECURE') &&
+          (r.code.toUpperCase().includes('PAYMENT') || r.cd === 'D')) {
+        return acc + Number(r.amount || 0);
+      }
+      return acc;
+    }, 0);
+    
+    // Balance = Payments - Loans Taken (negative means debt outstanding)
+    const secureLoanBalance = secureLoanPayment - secureLoanTaken;
+    const secureLoanCount = filteredData.filter(r => 
+      r.code && r.code.toUpperCase().includes('SECURE') && 
+      !r.code.toUpperCase().includes('UNSECURE')
+    ).length;
+    
+    // Calculate Unsecure Loan
+    // Loan taken (C) is negative (debt), Payment made (D) is positive (reduces debt)
+    const unsecureLoanTaken = filteredData.reduce((acc, r) => {
+      if (r.code && r.code.toUpperCase().includes('UNSECURE') && 
+          r.code.toUpperCase().includes('LOAN') && 
+          !r.code.toUpperCase().includes('PAYMENT') && r.cd === 'C') {
+        return acc + Number(r.amount || 0);
+      }
+      return acc;
+    }, 0);
+    
+    const unsecureLoanPayment = filteredData.reduce((acc, r) => {
+      if (r.code && r.code.toUpperCase().includes('UNSECURE') && 
+          (r.code.toUpperCase().includes('PAYMENT') || r.cd === 'D')) {
+        return acc + Number(r.amount || 0);
+      }
+      return acc;
+    }, 0);
+    
+    // Balance = Payments - Loans Taken (negative means debt outstanding)
+    const unsecureLoanBalance = unsecureLoanPayment - unsecureLoanTaken;
+    const unsecureLoanCount = filteredData.filter(r => 
+      r.code && r.code.toUpperCase().includes('UNSECURE')
+    ).length;
+    
     // Calculate transaction counts (CD not affecting totals)
     const creditCount = filteredData.filter(r => r.cd === 'C').length;
     const debitCount = filteredData.filter(r => r.cd === 'D').length;
@@ -108,7 +161,11 @@ const FinancialSummary = ({ onNavigateToReports }) => {
       totalTransactions,
       avgCredit,
       avgDebit,
-      avgCD
+      avgCD,
+      secureLoanBalance,
+      secureLoanCount,
+      unsecureLoanBalance,
+      unsecureLoanCount
     };
   }, [filteredData]);
 
@@ -154,6 +211,17 @@ const FinancialSummary = ({ onNavigateToReports }) => {
     if (!val && val !== 0) return "₹0";
     try {
       return `₹${Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+    } catch {
+      return `₹${val}`;
+    }
+  };
+
+  const formatLoanAmount = (val) => {
+    if (!val && val !== 0) return "₹0";
+    try {
+      const num = Number(val);
+      const formatted = Math.abs(num).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+      return num < 0 ? `-₹${formatted}` : `₹${formatted}`;
     } catch {
       return `₹${val}`;
     }
@@ -336,6 +404,50 @@ const FinancialSummary = ({ onNavigateToReports }) => {
             <div className="fs-card-detail">
               <i className="bi bi-currency-exchange"></i>
               <span>Avg: {formatAmount(metrics.avgCD)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Secure Loan Card */}
+        <div className="fs-metric-card secure-loan-card">
+          <div className="fs-card-header">
+            <div className="fs-card-icon">
+              <i className="bi bi-shield-check"></i>
+            </div>
+            <div className="fs-card-badge">
+              <span>{metrics.secureLoanCount} transactions</span>
+            </div>
+          </div>
+          <div className="fs-card-body">
+            <h3 className="fs-card-title">Secure Loan</h3>
+            <p className={`fs-card-amount ${metrics.secureLoanBalance < 0 ? 'negative-amount' : 'positive-amount'}`}>
+              {formatLoanAmount(metrics.secureLoanBalance)}
+            </p>
+            <div className="fs-card-detail">
+              <i className={`bi ${metrics.secureLoanBalance < 0 ? 'bi-arrow-down-circle' : 'bi-arrow-up-circle'}`}></i>
+              <span>{metrics.secureLoanBalance < 0 ? 'Outstanding' : 'Received'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Unsecure Loan Card */}
+        <div className="fs-metric-card unsecure-loan-card">
+          <div className="fs-card-header">
+            <div className="fs-card-icon">
+              <i className="bi bi-shield-exclamation"></i>
+            </div>
+            <div className="fs-card-badge">
+              <span>{metrics.unsecureLoanCount} transactions</span>
+            </div>
+          </div>
+          <div className="fs-card-body">
+            <h3 className="fs-card-title">Unsecure Loan</h3>
+            <p className={`fs-card-amount ${metrics.unsecureLoanBalance < 0 ? 'negative-amount' : 'positive-amount'}`}>
+              {formatLoanAmount(metrics.unsecureLoanBalance)}
+            </p>
+            <div className="fs-card-detail">
+              <i className={`bi ${metrics.unsecureLoanBalance < 0 ? 'bi-arrow-down-circle' : 'bi-arrow-up-circle'}`}></i>
+              <span>{metrics.unsecureLoanBalance < 0 ? 'Outstanding' : 'Received'}</span>
             </div>
           </div>
         </div>
