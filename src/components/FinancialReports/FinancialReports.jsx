@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import "./FinancialReports.css";
 import Spinner from "react-bootstrap/Spinner";
+import Toast from "react-bootstrap/Toast";
+import ToastContainer from "react-bootstrap/ToastContainer";
 import config from "../../config";
 import axios from "axios";
 import AddFinancialDataModal from "./AddFinancialDataModal";
@@ -45,9 +47,10 @@ const FinancialReports = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null });
-  const [sortColumn, setSortColumn] = useState('');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortColumn, setSortColumn] = useState('date');
+  const [sortDirection, setSortDirection] = useState('desc');
   const [viewDetails, setViewDetails] = useState({ show: false, item: null });
+  const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
 
   const sections = [
     { key: 'creditDebit', label: 'Credit & Debit Acc' },
@@ -306,9 +309,12 @@ const FinancialReports = () => {
       // Refresh data after delete
       fetchData();
       setDeleteConfirm({ show: false, item: null });
+      
+      // Show success message
+      setToast({ show: true, message: 'Financial record deleted successfully!', variant: 'success' });
     } catch (error) {
       console.error('Failed to delete financial data', error);
-      alert('Failed to delete record. Please try again.');
+      setToast({ show: true, message: 'Failed to delete record. Please try again.', variant: 'danger' });
     }
   };
 
@@ -329,9 +335,15 @@ const FinancialReports = () => {
     setEditingItem(null);
   };
 
-  const handleModalSuccess = () => {
+  const handleModalSuccess = (isEdit) => {
     fetchData();
     handleModalClose();
+    
+    // Show success message
+    const message = isEdit 
+      ? 'Financial record updated successfully!' 
+      : 'Financial record added successfully!';
+    setToast({ show: true, message, variant: 'success' });
   };
 
   return (
@@ -641,7 +653,7 @@ const FinancialReports = () => {
 
       {loading && (<div className="loading-overlay"><div className="loading-content"><Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner><p>Loading financial reports...</p></div></div>)}
 
-      {showModal && (<AddFinancialDataModal editData={editingItem} onClose={handleModalClose} onSuccess={handleModalSuccess} />)}
+      {showModal && (<AddFinancialDataModal editData={editingItem} onClose={handleModalClose} onSuccess={() => handleModalSuccess(!!editingItem)} />)}
 
       {/* View Details Modal */}
       {viewDetails.show && viewDetails.item && (
@@ -732,6 +744,25 @@ const FinancialReports = () => {
           </div>
         </div>
       )}
+
+      {/* Toast Notifications */}
+      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+        <Toast 
+          show={toast.show} 
+          onClose={() => setToast({ ...toast, show: false })}
+          delay={3000}
+          autohide
+          bg={toast.variant}
+        >
+          <Toast.Header>
+            <i className={`bi ${toast.variant === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2`}></i>
+            <strong className="me-auto">{toast.variant === 'success' ? 'Success' : 'Error'}</strong>
+          </Toast.Header>
+          <Toast.Body className={toast.variant === 'success' ? 'text-white' : 'text-white'}>
+            {toast.message}
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
   );
 };
