@@ -26,37 +26,95 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
   // Populate form when editing
   useEffect(() => {
     if (editData) {
+      console.log('Edit Data received:', editData);
+      
       // Split code into type and number if exists
-      const codeMatch = editData.code?.match(/^([A-Z\s]+)(\d*)$/);
-      setFormData({
+      // Match pattern: any characters followed by optional digits at the end
+      const codeMatch = editData.code?.match(/^(.+?)(\d*)$/);
+      
+      let codeType = '';
+      let codeNumber = '';
+      
+      if (codeMatch) {
+        const potentialType = codeMatch[1]?.trim() || '';
+        codeNumber = codeMatch[2] || '';
+        
+        // Try to find exact match in config code types
+        const matchedCodeType = financialReportConfig?.codeTypes?.find(
+          ct => potentialType === ct.value || potentialType.startsWith(ct.value)
+        );
+        
+        if (matchedCodeType) {
+          codeType = matchedCodeType.value;
+        } else {
+          codeType = potentialType;
+        }
+      }
+      
+      const populatedFormData = {
         date: editData.date || new Date().toISOString().split('T')[0],
-        codeType: codeMatch?.[1]?.trim() || '',
-        codeNumber: codeMatch?.[2] || '',
+        codeType: codeType,
+        codeNumber: codeNumber,
         fromAccount: editData.fromAccount || '',
         toAccount: editData.toAccount || '',
         cd: editData.cd || '',
         mainHeader: editData.mainHeader || '',
         subHeader: editData.subHeader || '',
         amount: editData.amount || ''
-      });
+      };
+      
+      console.log('Populated Form Data:', populatedFormData);
+      setFormData(populatedFormData);
     }
   }, [editData]);
 
-  const codeTypes = (financialReportConfig?.codeTypes?.length ? financialReportConfig.codeTypes : []);
+  // Get code types and ensure current value is included if in edit mode
+  const codeTypes = React.useMemo(() => {
+    const configTypes = financialReportConfig?.codeTypes?.length ? financialReportConfig.codeTypes : [];
+    // If editing and codeType not in config, add it
+    if (isEditMode && formData.codeType && !configTypes.find(ct => ct.value === formData.codeType)) {
+      return [...configTypes, { value: formData.codeType, label: formData.codeType }];
+    }
+    return configTypes;
+  }, [formData.codeType, isEditMode]);
 
-  const accountNames = (financialReportConfig?.accountNames?.length ? financialReportConfig.accountNames : []);
+  // Get account names and ensure current values are included if in edit mode
+  const accountNames = React.useMemo(() => {
+    const configAccounts = financialReportConfig?.accountNames?.length ? financialReportConfig.accountNames : [];
+    const additionalAccounts = new Set();
+    
+    if (isEditMode) {
+      if (formData.fromAccount && !configAccounts.includes(formData.fromAccount)) {
+        additionalAccounts.add(formData.fromAccount);
+      }
+      if (formData.toAccount && !configAccounts.includes(formData.toAccount)) {
+        additionalAccounts.add(formData.toAccount);
+      }
+    }
+    
+    return additionalAccounts.size > 0 
+      ? [...configAccounts, ...Array.from(additionalAccounts)].sort()
+      : configAccounts;
+  }, [formData.fromAccount, formData.toAccount, isEditMode]);
 
   const cdOptions = (financialReportConfig?.creditDebitOptions?.length ? financialReportConfig.creditDebitOptions : []);
 
   // Dynamic main header options based on cd selection
-  const getMainHeaderOptions = () => {
-    if (!formData.cd) return [];
-    if (formData.cd === 'D') return financialReportConfig?.mainHeadersDebit || [];
-    if (formData.cd === 'C') return financialReportConfig?.mainHeadersCredit || [];
-    return [];
+  const getMainHeaderOptions = (cdValue) => {
+    if (!cdValue) return [];
+    let baseOptions = [];
+    if (cdValue === 'D') baseOptions = financialReportConfig?.mainHeadersDebit || [];
+    if (cdValue === 'C') baseOptions = financialReportConfig?.mainHeadersCredit || [];
+    
+    // If editing and mainHeader not in config, add it
+    if (isEditMode && formData.mainHeader && !baseOptions.includes(formData.mainHeader)) {
+      return [...baseOptions, formData.mainHeader].sort();
+    }
+    
+    return baseOptions;
   };
 
-  const mainHeaderOptions = getMainHeaderOptions();
+  const mainHeaderOptions = getMainHeaderOptions(formData.cd);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
