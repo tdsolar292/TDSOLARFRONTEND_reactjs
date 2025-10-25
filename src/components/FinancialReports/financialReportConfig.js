@@ -5,7 +5,7 @@
 const financialReportConfig = {
   // Code types for the code dropdown
   codeTypes: [
-    { value: 'Ls', label: 'Ls' },
+    { value: 'Lp', label: 'Lp' },
     { value: 'Sc', label: 'Sc' },
     { value: 'COM', label: 'COM' },
     { value: 'PER', label: 'PER' },
