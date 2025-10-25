@@ -51,6 +51,11 @@ const FinancialReports = () => {
   const [sortDirection, setSortDirection] = useState('desc');
   const [viewDetails, setViewDetails] = useState({ show: false, item: null });
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [verifying, setVerifying] = useState(false);
+  
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin';
 
   const sections = [
     { key: 'creditDebit', label: 'Credit & Debit Acc' },
@@ -126,8 +131,8 @@ const FinancialReports = () => {
   }, [allData, filters, sortColumn, sortDirection]);
 
   useEffect(() => { fetchData(); }, []);
-  useEffect(() => { recomputeFromFiltered(); setPage(1); }, [filteredData, pageSize]);
-  useEffect(() => { setReports(paginate(filteredData)); }, [page, pageSize]);
+  useEffect(() => { recomputeFromFiltered(); setPage(1); setSelectedItems([]); }, [filteredData, pageSize]);
+  useEffect(() => { setReports(paginate(filteredData)); setSelectedItems([]); }, [page, pageSize]);
 
   // Function to handle navigation from Summary tab with filters
   const handleNavigateFromSummary = (filters) => {
@@ -346,6 +351,68 @@ const FinancialReports = () => {
     setToast({ show: true, message, variant: 'success' });
   };
 
+  const handleSelectItem = (itemId) => {
+    setSelectedItems(prev => {
+      if (prev.includes(itemId)) {
+        return prev.filter(id => id !== itemId);
+      } else {
+        return [...prev, itemId];
+      }
+    });
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      // Only select unverified items
+      const unverifiedIds = reports.filter(item => !item.isVerified).map(item => item._id);
+      setSelectedItems(unverifiedIds);
+    } else {
+      setSelectedItems([]);
+    }
+  };
+
+  const handleVerifySelected = async () => {
+    if (selectedItems.length === 0) {
+      setToast({ show: true, message: 'Please select items to verify', variant: 'warning' });
+      return;
+    }
+
+    setVerifying(true);
+    try {
+      const updatePromises = selectedItems.map(itemId => 
+        axios.put(
+          `${config.MernBaseURL}/financialData/verify/${itemId}`,
+          {
+            isVerified: true,
+            verifiedBy: user?.username,
+            verifiedAt: new Date().toISOString().split('T')[0]
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+      );
+
+      await Promise.all(updatePromises);
+      
+      // Refresh data and clear selection
+      fetchData();
+      setSelectedItems([]);
+      setToast({ 
+        show: true, 
+        message: `${selectedItems.length} record(s) verified successfully!`, 
+        variant: 'success' 
+      });
+    } catch (error) {
+      console.error('Failed to verify records', error);
+      setToast({ 
+        show: true, 
+        message: 'Failed to verify records. Please try again.', 
+        variant: 'danger' 
+      });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   return (
     <div className="financial-reports-box">
       {/* Section selector boxes */}
@@ -503,6 +570,17 @@ const FinancialReports = () => {
           <table className="table financial-reports-table">
             <thead>
               <tr>
+                {isAdmin && (
+                  <th scope="col" style={{ width: '50px' }}>
+                    <input 
+                      type="checkbox" 
+                      onChange={handleSelectAll}
+                      checked={reports.filter(item => !item.isVerified).length > 0 && 
+                               selectedItems.length === reports.filter(item => !item.isVerified).length}
+                      title="Select All Unverified"
+                    />
+                  </th>
+                )}
                 <th scope="col" className="sortable" onClick={() => handleSort('code')}>
                   Code {getSortIcon('code')}
                 </th>
@@ -533,6 +611,18 @@ const FinancialReports = () => {
             <tbody>
               {reports.map((item, idx) => { const row = mapToRow(item); return (
                 <tr key={idx} className={isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''}>
+                  {isAdmin && (
+                    <td>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedItems.includes(item._id)}
+                        onChange={() => handleSelectItem(item._id)}
+                        disabled={item.isVerified}
+                        title={item.isVerified ? "Already verified" : "Select for verification"}
+                        style={{ cursor: item.isVerified ? 'not-allowed' : 'pointer' }}
+                      />
+                    </td>
+                  )}
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       {row.code}
@@ -564,7 +654,21 @@ const FinancialReports = () => {
                   <td><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
                   <td>{row.mainHeader}</td>
                   <td>{row.subHeader}</td>
-                  <td><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{formatAmount(row.amount)}</span></td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{formatAmount(row.amount)}</span>
+                      {item.isVerified && (
+                        <i 
+                          className="bi bi-check-circle-fill" 
+                          title={`Verified by ${item.verifiedBy || 'Admin'} on ${item.verifiedAt || 'N/A'}`}
+                          style={{
+                            color: '#28a745',
+                            fontSize: '1rem'
+                          }}
+                        ></i>
+                      )}
+                    </div>
+                  </td>
                   <td>
                     <div className="action-buttons">
                       <button 
@@ -606,6 +710,29 @@ const FinancialReports = () => {
             <div>Debit: <span className="amount-debit">{formatAmount(summary.debit)}</span></div>
             <div>Net: <span className={summary.net >= 0 ? 'amount-credit' : 'amount-debit'}>{formatAmount(summary.net)}</span></div>
           </div>
+          {isAdmin && selectedItems.length > 0 && (
+            <div style={{ marginTop: '1rem' }}>
+              <button 
+                type="button" 
+                className="btn btn-success" 
+                onClick={handleVerifySelected}
+                disabled={verifying}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                {verifying ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-circle"></i>
+                    Verify Selected ({selectedItems.length})
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="pagination-container">

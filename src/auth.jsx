@@ -32,6 +32,13 @@ const USERS = {
     role: import.meta.env.VITE_WEBADMIN_ROLE,
     name: import.meta.env.VITE_WEBADMIN_NAME,
     canAccessFinancialReports: import.meta.env.VITE_WEBADMIN_FINANCIAL_ACCESS === 'true'
+  },
+  sk: {
+    username: import.meta.env.VITE_SK_USERNAME,
+    password: import.meta.env.VITE_SK_PASSWORD,
+    role: import.meta.env.VITE_SK_ROLE,
+    name: import.meta.env.VITE_SK_NAME,
+    canAccessFinancialReports: import.meta.env.VITE_SK_FINANCIAL_ACCESS === 'true'
   }
 };
 
@@ -58,13 +65,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const authenticateUser = (username, password) => {
-    const user = USERS[username];
-    if (user && user.password === password && user.username === username) {
+    // Find user by matching the actual username value from env variables
+    const userEntry = Object.values(USERS).find(
+      u => u.username === username && u.password === password
+    );
+    
+    if (userEntry) {
       return {
-        username: user.username,
-        name: user.name,
-        role: user.role,
-        canAccessFinancialReports: user.canAccessFinancialReports
+        username: userEntry.username,
+        name: userEntry.name,
+        role: userEntry.role,
+        canAccessFinancialReports: userEntry.canAccessFinancialReports
       };
     }
     return null;
