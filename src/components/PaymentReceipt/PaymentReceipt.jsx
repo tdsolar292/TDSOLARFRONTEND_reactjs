@@ -93,6 +93,8 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
       // Reset other field if not selecting Others
       ...(name === 'receiptGeneratedBy' && value !== 'Others' ? { ReceiptGeneratedByOther: '' } : {}),
       ...(name === 'paymentMode' && value !== 'Others' ? { PaymentModeOther: '' } : {}),
+      // Auto-select "CASH FOR TD" when Cash or Others is selected
+      ...(name === 'paymentMode' && (value === 'Cash' || value === 'Others') ? { toAccount: 'CASH FOR TD' } : {}),
     }));
   };
 
@@ -138,9 +140,9 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
       )
     );
 
-    // If payment mode is not Cash or Others, also call financial data API
+    // Call financial data API for all payment modes (including Cash and Others)
     const paymentMode = formData.paymentMode === 'Others' ? formData.PaymentModeOther : formData.paymentMode;
-    if (paymentMode.toLowerCase() !== 'cash' && formData.paymentMode !== 'Others') {
+    if (true) { // Allow all payment modes
       const currentDate = new Date();
       const financialData = {
         code: formData.clientId,
@@ -600,7 +602,7 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
               </div>
 
               {/* Conditional To Account Dropdown */}
-              {formData.paymentMode && formData.paymentMode.toLowerCase() !== 'cash' && formData.paymentMode !== 'Others' && (
+              {formData.paymentMode && (
                 <div className="col-sm-6 col-md-4 mb-3">
                   <label className="form-label fw-semibold text-primary" htmlFor="toAccount">
                     To Account
@@ -643,7 +645,7 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
               )}
 
               {/* Conditional Main Header Dropdown */}
-              {formData.paymentMode && formData.paymentMode.toLowerCase() !== 'cash' && formData.paymentMode !== 'Others' && (
+              {formData.paymentMode && (
                 <div className="col-sm-6 col-md-4 mb-3">
                   <label className="form-label fw-semibold text-primary" htmlFor="mainHeader">
                     Main Header
