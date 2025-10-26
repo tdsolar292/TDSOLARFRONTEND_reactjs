@@ -29,6 +29,7 @@ const FinancialReports = () => {
   const [mainHeaderFilter, setMainHeaderFilter] = useState("");
   const [codeFilter, setCodeFilter] = useState("");
   const [mainAccountFilter, setMainAccountFilter] = useState("");
+  const [verifiedFilter, setVerifiedFilter] = useState("");
 
   const [cardData, setCardData] = useState(cardDataTemplate);
   const [reports, setReports] = useState([]);
@@ -73,8 +74,37 @@ const FinancialReports = () => {
     mainHeader: mainHeaderFilter, 
     from: startDate, 
     to: endDate,
-    mainAccount: mainAccountFilter
-  }), [codeFilter, fromAccountFilter, toAccountFilter, cdFilter, mainHeaderFilter, startDate, endDate, mainAccountFilter]);
+    mainAccount: mainAccountFilter,
+    verified: verifiedFilter
+  }), [codeFilter, fromAccountFilter, toAccountFilter, cdFilter, mainHeaderFilter, startDate, endDate, mainAccountFilter, verifiedFilter]);
+
+  // Calculate verification counts (excluding verified filter for accurate counts)
+  const verificationCounts = useMemo(() => {
+    let filtered = allData;
+    
+    // Apply all filters except verified filter
+    if (filters.mainAccount) {
+      filtered = filtered.filter(r => 
+        r.fromAccount === filters.mainAccount || r.toAccount === filters.mainAccount
+      );
+    }
+    if (filters.fromAccount) filtered = filtered.filter(r => r.fromAccount === filters.fromAccount);
+    if (filters.toAccount) filtered = filtered.filter(r => r.toAccount === filters.toAccount);
+    if (filters.cd) filtered = filtered.filter(r => r.cd === filters.cd);
+    if (filters.mainHeader) filtered = filtered.filter(r => r.mainHeader === filters.mainHeader);
+    if (filters.code) {
+      const q = filters.code.toLowerCase();
+      filtered = filtered.filter(r => (r.code || "").toLowerCase().includes(q));
+    }
+    if (filters.from) filtered = filtered.filter(r => r.date >= filters.from);
+    if (filters.to) filtered = filtered.filter(r => r.date <= filters.to);
+    
+    const total = filtered.length;
+    const verified = filtered.filter(r => r.isVerified === true).length;
+    const unverified = filtered.filter(r => !r.isVerified).length;
+    
+    return { total, verified, unverified };
+  }, [allData, filters.code, filters.fromAccount, filters.toAccount, filters.cd, filters.mainHeader, filters.from, filters.to, filters.mainAccount]);
 
   const filteredData = useMemo(() => {
     let filtered = allData;
@@ -96,6 +126,13 @@ const FinancialReports = () => {
     }
     if (filters.from) filtered = filtered.filter(r => r.date >= filters.from);
     if (filters.to) filtered = filtered.filter(r => r.date <= filters.to);
+    
+    // Verified filter
+    if (filters.verified === "YES") {
+      filtered = filtered.filter(r => r.isVerified === true);
+    } else if (filters.verified === "NO") {
+      filtered = filtered.filter(r => !r.isVerified);
+    }
     
     // Apply sorting
     if (sortColumn) {
@@ -265,6 +302,7 @@ const FinancialReports = () => {
     setStartDate(""); 
     setEndDate(""); 
     setMainAccountFilter("");
+    setVerifiedFilter("");
     setSortColumn('');
     setSortDirection('asc');
   };
@@ -543,6 +581,16 @@ const FinancialReports = () => {
                 <label>To</label>
                 <input type="date" className="financial-reports-date-input" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1);} } />
               </div>
+
+              {/* Verified Status */}
+              <div className="filter-item">
+                <label>Verified</label>
+                <select className="financial-reports-select" value={verifiedFilter} onChange={(e) => { setVerifiedFilter(e.target.value); setPage(1);} }>
+                  <option value="">All ({verificationCounts.total})</option>
+                  <option value="YES">YES ({verificationCounts.verified})</option>
+                  <option value="NO">NO ({verificationCounts.unverified})</option>
+                </select>
+              </div>
             </div>
           </div>
         )}
@@ -610,7 +658,7 @@ const FinancialReports = () => {
             </thead>
             <tbody>
               {reports.map((item, idx) => { const row = mapToRow(item); return (
-                <tr key={idx} className={isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''}>
+                <tr key={idx} className={`${isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''} ${selectedItems.includes(item._id) ? 'row-selected' : ''}`}>
                   {isAdmin && (
                     <td>
                       <input 
@@ -623,51 +671,49 @@ const FinancialReports = () => {
                       />
                     </td>
                   )}
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      {row.code}
-                      {isFromPaymentReceipt(item) && (
-                        <span 
-                          className="payment-receipt-badge" 
-                          title={`Generated from Payment Receipt by ${item.generatedBy}`}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            backgroundColor: '#e3f2fd',
-                            color: '#1976d2',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          <i className="bi bi-receipt" style={{ marginRight: '3px' }}></i>
-                          PR
-                        </span>
-                      )}
-                    </div>
+                  <td title={row.code} style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {row.code}
+                    {isFromPaymentReceipt(item) && (
+                      <span 
+                        className="payment-receipt-badge" 
+                        title={`Generated from Payment Receipt by ${item.generatedBy}`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          backgroundColor: '#e3f2fd',
+                          color: '#1976d2',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          whiteSpace: 'nowrap',
+                          float: 'right'
+                        }}
+                      >
+                        <i className="bi bi-receipt" style={{ marginRight: '3px' }}></i>
+                        PR
+                      </span>
+                    )}
                   </td>
-                  <td>{row.date}</td>
-                  <td>{row.fromAccount}</td>
-                  <td>{row.toAccount}</td>
-                  <td><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
-                  <td>{row.mainHeader}</td>
-                  <td>{row.subHeader}</td>
+                  <td title={row.date} style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.date}</td>
+                  <td title={row.fromAccount} style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.fromAccount}</td>
+                  <td title={row.toAccount} style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.toAccount}</td>
+                  <td title={getDynamicCD(item)} style={{ maxWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
+                  <td title={row.mainHeader} style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.mainHeader}</td>
+                  <td title={row.subHeader} style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.subHeader}</td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{formatAmount(row.amount)}</span>
-                      {item.isVerified && (
-                        <i 
-                          className="bi bi-check-circle-fill" 
-                          title={`Verified by ${item.verifiedBy || 'Admin'} on ${item.verifiedAt || 'N/A'}`}
-                          style={{
-                            color: '#28a745',
-                            fontSize: '1rem'
-                          }}
-                        ></i>
-                      )}
-                    </div>
+                    <span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{formatAmount(row.amount)}</span>
+                    {item.isVerified && (
+                      <i 
+                        className="bi bi-check" 
+                        title={`Verified by ${item.verifiedBy || 'Admin'} on ${item.verifiedAt || 'N/A'}`}
+                        style={{
+                          color: '#28a745',
+                          fontSize: '1rem',
+                          float: 'right'
+                        }}
+                      ></i>
+                    )}
                   </td>
                   <td>
                     <div className="action-buttons">

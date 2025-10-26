@@ -338,9 +338,21 @@
   font-size: 0.875rem;
 }
 
-.financial-reports-table tbody tr:hover {
-  background-color: #f8fafc;
+/* Normal row hover - light blue */
+.financial-reports-table tbody tr:hover td {
+  background-color: #f0f9ff;
   transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+/* Selected row - medium blue */
+.financial-reports-table tbody tr.row-selected td {
+  background-color: #dbeafe !important;
+}
+
+/* Selected row hover - darker blue */
+.financial-reports-table tbody tr.row-selected:hover td {
+  background-color: #bfdbfe !important;
 }
 
 .financial-reports-table th {
@@ -405,11 +417,11 @@
 }
 
 .financial-reports-table td {
-  padding: 0.35rem 0.65rem;
+  padding: 0.02rem 0.65rem;
   border: none;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
-  font-size: 0.875rem;
+  font-size: 0.675rem;
 }
 
 .action-btn {
@@ -803,8 +815,8 @@
 
 /* Action Buttons */
 .action-buttons{display:flex;gap:0.3rem;justify-content:center}
-.btn-action{border:none;background:transparent;padding:0.3rem 0.5rem;border-radius:5px;cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;justify-content:center}
-.btn-action i{font-size:0.9rem}
+.btn-action{border:none;background:transparent;padding:0.05rem 0.5rem;border-radius:5px;cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;justify-content:center}
+.btn-action i{font-size:0.8rem}
 .btn-view{color:var(--success)}
 .btn-view:hover{background:var(--success);color:#fff;transform:scale(1.08)}
 .btn-edit{color:var(--info)}
