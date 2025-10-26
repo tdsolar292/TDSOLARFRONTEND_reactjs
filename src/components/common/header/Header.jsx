@@ -100,7 +100,10 @@ const Header = () => {
       <div className="container px-lg-5">
         <Link className="navbar-brand" to="/">
           <img src="/tslogo.png" className='active-clients-logo-spin' alt="logo" width="60" />
-          CRM TD SOLAR
+          CRM&nbsp;
+          <span className="brand-td-solar">
+             TD SOLAR
+          </span>
         </Link>
         <button 
           className="navbar-toggler" 

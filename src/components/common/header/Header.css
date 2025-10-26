@@ -211,6 +211,18 @@
   font-size: 1rem;
 }
 
+/* Brand TD SOLAR Styling - Desktop Only */
+@media (min-width: 992px) {
+  .brand-td-solar {
+    color: white;
+    background-color: #169c53;
+    padding: 16px 8px;
+    margin-left: 10px;
+    border-radius: 0px;
+    font-weight: bolder;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .backup-modal {

@@ -112,7 +112,7 @@ body {
   background-color: var(--td-green) !important;
 }
 .td-blue-bg{
-  background: #0052D4;  /* fallback for old browsers */
+  background: linear-gradient(to left, #1D2671, #C33764);  /* fallback for old browsers */
 
 }
 
