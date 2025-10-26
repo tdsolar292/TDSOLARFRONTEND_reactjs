@@ -54,7 +54,8 @@ const FinancialReports = () => {
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
   const [selectedItems, setSelectedItems] = useState([]);
   const [verifying, setVerifying] = useState(false);
-  
+  const [showSummary, setShowSummary] = useState(false);
+
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
 
@@ -454,17 +455,78 @@ const FinancialReports = () => {
   return (
     <div className="financial-reports-box">
       {/* Section selector boxes */}
-      <div className="fr-sections">
-        {sections.map(s => (
-          <button
-            type="button"
-            key={s.key}
-            className={`fr-section-box ${section === s.key ? 'active' : ''}`}
-            onClick={() => setSection(s.key)}
+      <div className="fr-sections" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+          {sections.map(s => (
+            <button
+              type="button"
+              key={s.key}
+              className={`fr-section-box ${section === s.key ? 'active' : ''}`}
+              onClick={() => setSection(s.key)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Action buttons moved here */}
+        <div className="header-actions">
+          <button 
+            type="button" 
+            className="btn btn-outline-secondary icon-btn" 
+            onClick={() => setShowSummary(!showSummary)} 
+            title={showSummary ? "Hide Summary" : "Show Summary"}
           >
-            {s.label}
+            <i className={`bi ${showSummary ? 'bi-eye-slash' : 'bi-eye'}`}></i>
           </button>
-        ))}
+          <button 
+            type="button" 
+            className="btn btn-outline-secondary icon-btn filter-toggle-btn" 
+            onClick={() => setShowFilters(!showFilters)} 
+            title="Toggle Filters"
+          >
+            <i className={`bi ${showFilters ? 'bi-funnel-fill' : 'bi-funnel'}`}></i>
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-outline-success icon-btn" 
+            onClick={fetchData} 
+            title="Reload Data"
+          >
+            <i className="bi bi-arrow-clockwise"></i>
+          </button>
+          <button type="button" className="btn btn-outline-primary icon-btn" onClick={clearFilters} title="Clear Filters">
+            <i className="bi bi-eraser"></i>
+          </button>
+          <button type="button" className="financial-reports-add-btn icon-btn" onClick={() => setShowModal(true)} title="Add Financial Data">
+            <i className="bi bi-plus-circle"></i>
+          </button>
+          <button type="button" className="financial-reports-download-btn icon-btn" onClick={handleExportExcel} title="Download Data">
+            <i className="bi bi-download"></i>
+          </button>
+          {isAdmin && selectedItems.length > 0 && (
+            <button 
+              type="button" 
+              className="btn btn-success" 
+              onClick={handleVerifySelected}
+              disabled={verifying}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.7rem', borderRadius: '8px', fontSize: '0.85rem' }}
+              title={`Verify ${selectedItems.length} selected item${selectedItems.length > 1 ? 's' : ''}`}
+            >
+              {verifying ? (
+                <>
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-check-circle"></i>
+                  Verify ({selectedItems.length})
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {section === 'creditDebit' ? (
@@ -473,36 +535,31 @@ const FinancialReports = () => {
         {/* Header with title and action buttons */}
         <div className="topbar-header">
           <div className="controls-title">
-            <h1 className="financial-reports-title">Financial Reports</h1>
-            <p className="financial-reports-subtitle">Compact overview</p>
-          </div>
-          
-          <div className="header-actions">
-            <button 
-              type="button" 
-              className="btn btn-outline-secondary icon-btn filter-toggle-btn" 
-              onClick={() => setShowFilters(!showFilters)} 
-              title="Toggle Filters"
-            >
-              <i className={`bi ${showFilters ? 'bi-funnel-fill' : 'bi-funnel'}`}></i>
-            </button>
-            <button 
-              type="button" 
-              className="btn btn-outline-success icon-btn" 
-              onClick={fetchData} 
-              title="Reload Data"
-            >
-              <i className="bi bi-arrow-clockwise"></i>
-            </button>
-            <button type="button" className="btn btn-outline-primary icon-btn" onClick={clearFilters} title="Clear Filters">
-              <i className="bi bi-eraser"></i>
-            </button>
-            <button type="button" className="financial-reports-add-btn icon-btn" onClick={() => setShowModal(true)} title="Add Financial Data">
-              <i className="bi bi-plus-circle"></i>
-            </button>
-            <button type="button" className="financial-reports-download-btn icon-btn" onClick={handleExportExcel} title="Download Data">
-              <i className="bi bi-download"></i>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <h1 className="financial-reports-title">Financial Reports</h1>
+              {showSummary && (
+                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ color: 'var(--success)', fontWeight: '600' }}>
+                    Credit: ₹{summary.credit.toLocaleString()}
+                  </span>
+                  <span style={{ color: 'var(--danger)', fontWeight: '600' }}>
+                    Debit: ₹{summary.debit.toLocaleString()}
+                  </span>
+                  <span style={{ color: summary.net >= 0 ? 'var(--success)' : 'var(--danger)', fontWeight: '600' }}>
+                    Net: ₹{summary.net.toLocaleString()}
+                  </span>
+                  <span style={{ color: 'var(--info)', fontWeight: '600' }}>
+                    | Total: {verificationCounts.total}
+                  </span>
+                  <span style={{ color: 'var(--success)', fontWeight: '600' }}>
+                    Verified: {verificationCounts.verified}
+                  </span>
+                  <span style={{ color: 'var(--warning)', fontWeight: '600' }}>
+                    Not-Verified: {verificationCounts.unverified}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -594,23 +651,6 @@ const FinancialReports = () => {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="summary-cards">
-        {cardData.map((card, index) => {
-          const valueClass = card.label === 'Credit' ? 'amount-credit' : card.label === 'Debit' ? 'amount-debit' : (card.value >= 0 ? 'amount-credit' : 'amount-debit');
-          return (
-            <div key={index} className="summary-card">
-              <div className="summary-card-icon" style={{ color: card.color }}>
-                <i className={`bi ${card.icon}`}></i>
-              </div>
-              <div className="summary-card-content">
-                <div className="summary-card-label">{card.label}</div>
-                <div className={`summary-card-value ${valueClass}`}>{typeof card.value === 'number' ? `₹${card.value.toLocaleString()}` : card.value}</div>
-              </div>
-            </div>
-          );
-        })}
       </div>
 
       <div className="table-container">
@@ -747,38 +787,6 @@ const FinancialReports = () => {
               );})}
             </tbody>
           </table>
-        </div>
-
-        <div className="balance-summary">
-          <div className="summary-title">Balance Summary - All Accounts</div>
-          <div className="summary-items">
-            <div>Credit: <span className="amount-credit">{formatAmount(summary.credit)}</span></div>
-            <div>Debit: <span className="amount-debit">{formatAmount(summary.debit)}</span></div>
-            <div>Net: <span className={summary.net >= 0 ? 'amount-credit' : 'amount-debit'}>{formatAmount(summary.net)}</span></div>
-          </div>
-          {isAdmin && selectedItems.length > 0 && (
-            <div style={{ marginTop: '1rem' }}>
-              <button 
-                type="button" 
-                className="btn btn-success" 
-                onClick={handleVerifySelected}
-                disabled={verifying}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-              >
-                {verifying ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle"></i>
-                    Verify Selected ({selectedItems.length})
-                  </>
-                )}
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="pagination-container">

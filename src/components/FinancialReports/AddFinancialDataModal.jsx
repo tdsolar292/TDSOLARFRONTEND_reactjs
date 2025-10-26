@@ -118,17 +118,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // When main header changes, auto-populate sub header with the same value
-    if (name === 'mainHeader') {
-      setFormData(prev => ({ 
-        ...prev, 
-        [name]: value,
-        subHeader: value // Auto-fill sub header with main header value
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
