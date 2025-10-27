@@ -355,6 +355,24 @@
   background-color: #bfdbfe !important;
 }
 
+/* Highlighted row after edit - cyan highlight with fade animation */
+.financial-reports-table tbody tr.highlighted-row td {
+  background-color: #cff4fc !important;
+  animation: highlightFade 10s ease-in-out;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: #15cbf0;
+  }
+  50% {
+    background-color: #7ee3f8;
+  }
+  100% {
+    background-color: #cff4fc;
+  }
+}
+
 .financial-reports-table th {
   background: var(--table-header-bg);
   padding: 0.5rem 0.65rem;

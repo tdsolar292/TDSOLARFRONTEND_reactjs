@@ -56,6 +56,8 @@ const FinancialReports = () => {
   const [verifying, setVerifying] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showMainAccountDropdown, setShowMainAccountDropdown] = useState(false);
+  const [highlightedRowId, setHighlightedRowId] = useState(null);
+  const [preventPageReset, setPreventPageReset] = useState(false);
 
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
@@ -170,7 +172,14 @@ const FinancialReports = () => {
   }, [allData, filters, sortColumn, sortDirection]);
 
   useEffect(() => { fetchData(); }, []);
-  useEffect(() => { recomputeFromFiltered(); setPage(1); setSelectedItems([]); }, [filteredData, pageSize]);
+  useEffect(() => { 
+    recomputeFromFiltered(); 
+    if (!preventPageReset) {
+      setPage(1);
+    }
+    setPreventPageReset(false);
+    setSelectedItems([]); 
+  }, [filteredData, pageSize]);
   useEffect(() => { setReports(paginate(filteredData)); setSelectedItems([]); }, [page, pageSize]);
   
   // Handle clicking outside the Main Account dropdown
@@ -391,7 +400,18 @@ const FinancialReports = () => {
     setEditingItem(null);
   };
 
-  const handleModalSuccess = (isEdit) => {
+  const handleModalSuccess = (isEdit, updatedItem) => {
+    // If editing, preserve the current page and highlight the row
+    if (isEdit && editingItem) {
+      setPreventPageReset(true);
+      setHighlightedRowId(editingItem._id);
+      
+      // Clear highlight after 10 seconds
+      setTimeout(() => {
+        setHighlightedRowId(null);
+      }, 10000);
+    }
+    
     fetchData();
     handleModalClose();
     
@@ -616,9 +636,9 @@ const FinancialReports = () => {
               </div>
 
               {/* Main Account - Multi-Select */}
-              <div className="filter-item" style={{ position: 'relative', zIndex: 9999 }}>
+              <div className="filter-item" style={{ position: 'relative' }}>
                 <label>Main Account</label>
-                <div className="main-account-multiselect" style={{ position: 'relative', zIndex: 9999 }}>
+                <div className="main-account-multiselect" style={{ position: 'relative' }}>
                   <div 
                     className="financial-reports-select" 
                     style={{ 
@@ -829,7 +849,7 @@ const FinancialReports = () => {
             </thead>
             <tbody>
               {reports.map((item, idx) => { const row = mapToRow(item); return (
-                <tr key={idx} className={`${isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''} ${selectedItems.includes(item._id) ? 'row-selected' : ''}`}>
+                <tr key={idx} className={`${isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''} ${selectedItems.includes(item._id) ? 'row-selected' : ''} ${highlightedRowId === item._id ? 'highlighted-row' : ''}`}>
                   {isAdmin && (
                     <td>
                       <input 
