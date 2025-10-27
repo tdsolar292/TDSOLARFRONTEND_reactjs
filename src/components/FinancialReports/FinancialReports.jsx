@@ -40,7 +40,7 @@ const FinancialReports = () => {
   const [summary, setSummary] = useState({ credit: 0, debit: 0, net: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
