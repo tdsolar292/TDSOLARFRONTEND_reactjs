@@ -28,7 +28,7 @@ const FinancialReports = () => {
   const [cdFilter, setCdFilter] = useState("");
   const [mainHeaderFilter, setMainHeaderFilter] = useState("");
   const [codeFilter, setCodeFilter] = useState("");
-  const [mainAccountFilter, setMainAccountFilter] = useState("");
+  const [mainAccountFilter, setMainAccountFilter] = useState([]);
   const [verifiedFilter, setVerifiedFilter] = useState("");
 
   const [cardData, setCardData] = useState(cardDataTemplate);
@@ -55,6 +55,7 @@ const FinancialReports = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [verifying, setVerifying] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [showMainAccountDropdown, setShowMainAccountDropdown] = useState(false);
 
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
@@ -84,9 +85,9 @@ const FinancialReports = () => {
     let filtered = allData;
     
     // Apply all filters except verified filter
-    if (filters.mainAccount) {
+    if (filters.mainAccount && filters.mainAccount.length > 0) {
       filtered = filtered.filter(r => 
-        r.fromAccount === filters.mainAccount || r.toAccount === filters.mainAccount
+        filters.mainAccount.includes(r.fromAccount) || filters.mainAccount.includes(r.toAccount)
       );
     }
     if (filters.fromAccount) filtered = filtered.filter(r => r.fromAccount === filters.fromAccount);
@@ -110,10 +111,10 @@ const FinancialReports = () => {
   const filteredData = useMemo(() => {
     let filtered = allData;
     
-    // Main Account filter - shows all transactions involving this account
-    if (filters.mainAccount) {
+    // Main Account filter - shows all transactions involving these accounts
+    if (filters.mainAccount && filters.mainAccount.length > 0) {
       filtered = filtered.filter(r => 
-        r.fromAccount === filters.mainAccount || r.toAccount === filters.mainAccount
+        filters.mainAccount.includes(r.fromAccount) || filters.mainAccount.includes(r.toAccount)
       );
     }
     
@@ -171,6 +172,17 @@ const FinancialReports = () => {
   useEffect(() => { fetchData(); }, []);
   useEffect(() => { recomputeFromFiltered(); setPage(1); setSelectedItems([]); }, [filteredData, pageSize]);
   useEffect(() => { setReports(paginate(filteredData)); setSelectedItems([]); }, [page, pageSize]);
+  
+  // Handle clicking outside the Main Account dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMainAccountDropdown && !event.target.closest('.main-account-multiselect')) {
+        setShowMainAccountDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMainAccountDropdown]);
 
   // Function to handle navigation from Summary tab with filters
   const handleNavigateFromSummary = (filters) => {
@@ -302,7 +314,7 @@ const FinancialReports = () => {
     setCodeFilter(""); 
     setStartDate(""); 
     setEndDate(""); 
-    setMainAccountFilter("");
+    setMainAccountFilter([]);
     setVerifiedFilter("");
     setSortColumn('');
     setSortDirection('asc');
@@ -451,6 +463,28 @@ const FinancialReports = () => {
       setVerifying(false);
     }
   };
+  
+  // Handle Main Account checkbox toggle
+  const handleMainAccountToggle = (account) => {
+    setMainAccountFilter(prev => {
+      if (prev.includes(account)) {
+        return prev.filter(a => a !== account);
+      } else {
+        return [...prev, account];
+      }
+    });
+    setPage(1);
+  };
+  
+  // Handle Select/Deselect All for Main Account
+  const handleMainAccountSelectAll = () => {
+    if (mainAccountFilter.length === accountOptions.length) {
+      setMainAccountFilter([]);
+    } else {
+      setMainAccountFilter([...accountOptions]);
+    }
+    setPage(1);
+  };
 
   return (
     <div className="financial-reports-box">
@@ -531,7 +565,7 @@ const FinancialReports = () => {
 
       {section === 'creditDebit' ? (
         <>
-      <div className="financial-reports-topbar">
+      <div className="financial-reports-topbar" style={{ overflow: 'visible' }}>
         {/* Header with title and action buttons */}
         <div className="topbar-header">
           <div className="controls-title">
@@ -565,8 +599,8 @@ const FinancialReports = () => {
 
         {/* Collapsible Filters */}
         {showFilters && (
-          <div className="filters-panel">
-            <div className="filters-grid">
+          <div className="filters-panel" style={{ overflow: 'visible', position: 'relative' }}>
+            <div className="filters-grid" style={{ overflow: 'visible', position: 'relative' }}>
               {/* Code */}
               <div className="filter-item">
                 <label>Code</label>
@@ -581,13 +615,110 @@ const FinancialReports = () => {
                 <datalist id="code-options">{codeOptions.map(code => (<option key={code} value={code} />))}</datalist>
               </div>
 
-              {/* Main Account */}
-              <div className="filter-item">
+              {/* Main Account - Multi-Select */}
+              <div className="filter-item" style={{ position: 'relative', zIndex: 9999 }}>
                 <label>Main Account</label>
-                <select className="financial-reports-select" value={mainAccountFilter} onChange={(e) => { setMainAccountFilter(e.target.value); setPage(1);} }>
-                  <option value="">All</option>
-                  {accountOptions.map(acc => (<option key={acc} value={acc}>{acc}</option>))}
-                </select>
+                <div className="main-account-multiselect" style={{ position: 'relative', zIndex: 9999 }}>
+                  <div 
+                    className="financial-reports-select" 
+                    style={{ 
+                      cursor: 'pointer', 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      paddingRight: '2rem'
+                    }}
+                    onClick={() => setShowMainAccountDropdown(!showMainAccountDropdown)}
+                  >
+                    <span style={{ 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis', 
+                      whiteSpace: 'nowrap',
+                      flex: 1
+                    }}>
+                      {mainAccountFilter.length === 0 
+                        ? 'All' 
+                        : mainAccountFilter.length === accountOptions.length
+                        ? 'All Selected'
+                        : `${mainAccountFilter.length} Selected`
+                      }
+                    </span>
+                    <i className={`bi bi-chevron-${showMainAccountDropdown ? 'up' : 'down'}`} style={{ position: 'absolute', right: '0.75rem' }}></i>
+                  </div>
+                  
+                  {showMainAccountDropdown && (
+                    <div className="multiselect-dropdown" style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      backgroundColor: 'white',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      zIndex: 9999,
+                      marginTop: '4px',
+                      minWidth: '200px',
+                      width: 'auto',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {/* Select All Option */}
+                      <div 
+                        style={{
+                          padding: '0.5rem 0.65rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          borderBottom: '1px solid var(--border-color)',
+                          backgroundColor: 'var(--light-bg)',
+                          fontWeight: '600',
+                          fontSize: '0.8rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                        onClick={handleMainAccountSelectAll}
+                      >
+                        <input 
+                          type="checkbox" 
+                          checked={mainAccountFilter.length === accountOptions.length}
+                          onChange={() => {}}
+                          style={{ cursor: 'pointer', width: '14px', height: '14px', flexShrink: 0 }}
+                        />
+                        <span>Select All</span>
+                      </div>
+                      
+                      {/* Account Options */}
+                      {accountOptions.map(acc => (
+                        <div 
+                          key={acc}
+                          style={{
+                            padding: '0.5rem 0.65rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            transition: 'background-color 0.2s',
+                            backgroundColor: mainAccountFilter.includes(acc) ? 'var(--light-primary)' : 'transparent',
+                            fontSize: '0.8rem',
+                            whiteSpace: 'nowrap'
+                          }}
+                          onClick={() => handleMainAccountToggle(acc)}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = mainAccountFilter.includes(acc) ? 'var(--light-primary)' : 'transparent'}
+                        >
+                          <input 
+                            type="checkbox" 
+                            checked={mainAccountFilter.includes(acc)}
+                            onChange={() => {}}
+                            style={{ cursor: 'pointer', width: '14px', height: '14px', flexShrink: 0 }}
+                          />
+                          <span>{acc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* From Account */}
