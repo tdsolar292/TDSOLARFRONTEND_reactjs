@@ -16,6 +16,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
     codeType: '',
     codeNumber: '',
     fromAccount: '',
+    throughBy: '',
     toAccount: '',
     cd: '',
     mainHeader: '',
@@ -56,6 +57,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
         codeType: codeType,
         codeNumber: codeNumber,
         fromAccount: editData.fromAccount || '',
+        throughBy: editData.throughBy || '',
         toAccount: editData.toAccount || '',
         cd: editData.cd || '',
         mainHeader: editData.mainHeader || '',
@@ -131,6 +133,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
         code: formData.codeType || formData.codeNumber ? `${formData.codeType}${formData.codeNumber}` : '',
         date: formData.date,
         fromAccount: formData.fromAccount,
+        throughBy: formData.throughBy,
         toAccount: formData.toAccount,
         cd: formData.cd,
         mainHeader: formData.mainHeader,
@@ -234,6 +237,17 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
+              <Form.Label className="fw-semibold text-primary">Through/By</Form.Label>
+              <Form.Control
+                type="text"
+                name="throughBy"
+                placeholder="Enter through/by"
+                value={formData.throughBy}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="col-sm-6 col-md-4 mb-3">
               <Form.Label className="fw-semibold text-primary">To Account</Form.Label>
               <Form.Select
                 name="toAccount"
@@ -279,11 +293,6 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </Form.Select>
-              {!formData.cd && (
-                <small className="text-muted">
-                  Please select Credit/Debit first to see main header options
-                </small>
-              )}
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">
