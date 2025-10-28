@@ -247,8 +247,8 @@ const FinancialReports = () => {
     // Calculate totals with dynamic C/D when Main Account filter is active
     const totalCredit = filteredData.reduce((acc, r) => {
       // Dynamic C/D based on Main Account perspective
-      if (mainAccountFilter) {
-        if (r.toAccount === mainAccountFilter) {
+      if (mainAccountFilter && mainAccountFilter.length > 0) {
+        if (mainAccountFilter.includes(r.toAccount)) {
           return acc + Number(r.amount || 0); // Money coming in = Credit
         }
         return acc; // Money going out counted in debit
@@ -260,8 +260,8 @@ const FinancialReports = () => {
     
     const totalDebit = filteredData.reduce((acc, r) => {
       // Dynamic C/D based on Main Account perspective
-      if (mainAccountFilter) {
-        if (r.fromAccount === mainAccountFilter) {
+      if (mainAccountFilter && mainAccountFilter.length > 0) {
+        if (mainAccountFilter.includes(r.fromAccount)) {
           return acc + Number(r.amount || 0); // Money going out = Debit
         }
         return acc; // Money coming in counted in credit
@@ -300,13 +300,13 @@ const FinancialReports = () => {
   // Get dynamic C/D based on Main Account perspective
   const getDynamicCD = (item) => {
     // If Main Account filter is active, show perspective from that account
-    if (mainAccountFilter) {
+    if (mainAccountFilter && mainAccountFilter.length > 0) {
       // If main account is receiving (toAccount), it's a Credit for them
-      if (item.toAccount === mainAccountFilter) {
+      if (mainAccountFilter.includes(item.toAccount)) {
         return 'C';
       }
-      // If main account is giving (fromAccount), it's a Debit for them
-      if (item.fromAccount === mainAccountFilter) {
+      // If main account is sending (fromAccount), it's a Debit for them
+      if (mainAccountFilter.includes(item.fromAccount)) {
         return 'D';
       }
     }
