@@ -820,31 +820,34 @@ const FinancialReports = () => {
                     />
                   </th>
                 )}
-                <th scope="col" className="sortable" onClick={() => handleSort('code')} style={{ width: '10%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('code')} style={{ width: '8%' }}>
                   Code {getSortIcon('code')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('date')} style={{ width: '8%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('date')} style={{ width: '6%' }}>
                   Date {getSortIcon('date')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('fromAccount')} style={{ width: '10%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('fromAccount')} style={{ width: '8%' }}>
                   From Account {getSortIcon('fromAccount')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('toAccount')} style={{ width: '10%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('throughBy')} style={{ width: '8%' }}>
+                  Through/By {getSortIcon('throughBy')}
+                </th>
+                <th scope="col" className="sortable" onClick={() => handleSort('toAccount')} style={{ width: '8%' }}>
                   To Account {getSortIcon('toAccount')}
                 </th>
                 <th scope="col" className="sortable" onClick={() => handleSort('cd')} style={{ width: '5%' }}>
                   C/D {getSortIcon('cd')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('mainHeader')} style={{ width: '20%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('mainHeader')} style={{ width: '22%' }}>
                   Main Header {getSortIcon('mainHeader')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('subHeader')} style={{ width: '12%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('subHeader')} style={{ width: '17%' }}>
                   Sub Header {getSortIcon('subHeader')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('amount')} style={{ width: '13%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('amount')} style={{ width: '8%' }}>
                   Amount {getSortIcon('amount')}
                 </th>
-                <th scope="col" style={{ width: '10%' }}>Actions</th>
+                <th scope="col" style={{ width: '8%' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -862,7 +865,7 @@ const FinancialReports = () => {
                       />
                     </td>
                   )}
-                  <td title={row.code} style={{ width: '10%', maxWidth: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td title={row.code} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.code}
                     {isFromPaymentReceipt(item) && (
                       <span 
@@ -886,27 +889,30 @@ const FinancialReports = () => {
                       </span>
                     )}
                   </td>
-                  <td title={row.date} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.date}</td>
-                  <td title={row.fromAccount} style={{ width: '10%', maxWidth: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.fromAccount}</td>
-                  <td title={row.toAccount} style={{ width: '10%', maxWidth: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.toAccount}</td>
+                  <td title={row.date} style={{ width: '6%', maxWidth: '6%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.date}</td>
+                  <td title={row.fromAccount} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.fromAccount}</td>
+                  <td title={item.throughBy || ''} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.throughBy || '-'}</td>
+                  <td title={row.toAccount} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.toAccount}</td>
                   <td title={getDynamicCD(item)} style={{ width: '5%', maxWidth: '5%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
-                  <td title={row.mainHeader} style={{ width: '20%', maxWidth: '20%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.mainHeader}</td>
-                  <td title={row.subHeader} style={{ width: '12%', maxWidth: '12%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.subHeader}</td>
-                  <td style={{ width: '13%', maxWidth: '13%' }}>
-                    <span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{formatAmount(row.amount)}</span>
-                    {item.isVerified && (
+                  <td title={row.mainHeader} style={{ width: '22%', maxWidth: '22%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.mainHeader}</td>
+                  <td title={row.subHeader} style={{ width: '17%', maxWidth: '17%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.subHeader}</td>
+                  <td style={{ width: '8%', maxWidth: '8%' }}>
+                    {item.isVerified ? (
                       <i 
                         className="bi bi-check" 
                         title={`Verified by ${item.verifiedBy || 'Admin'} on ${item.verifiedAt || 'N/A'}`}
                         style={{
                           color: '#28a745',
                           fontSize: '1rem',
-                          float: 'right'
+                          marginRight: '4px'
                         }}
                       ></i>
+                    ) : (
+                      <span style={{ display: 'inline-block', width: '1rem', marginRight: '4px' }}></span>
                     )}
+                    <span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{formatAmount(row.amount)}</span>
                   </td>
-                  <td style={{ width: '10%', maxWidth: '10%' }}>
+                  <td style={{ width: '8%', maxWidth: '8%' }}>
                     <div className="action-buttons">
                       <button 
                         type="button" 

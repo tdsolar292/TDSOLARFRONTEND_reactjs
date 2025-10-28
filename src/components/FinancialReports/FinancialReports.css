@@ -336,6 +336,8 @@
 .financial-reports-table {
   margin-bottom: 0;
   font-size: 0.875rem;
+  table-layout: fixed;
+  width: 100%;
 }
 
 /* Normal row hover - light blue */
