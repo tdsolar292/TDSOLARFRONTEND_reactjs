@@ -95,6 +95,89 @@ const Header = () => {
     }
   };
 
+  // Clears client-side caches and performs a hard reload with a cache-busting param
+  const handleHardReload = async () => {
+    const confirmMsg = 'This will clear cached data (Cache Storage, Local/Session Storage, IndexedDB) and unregister Service Workers, then reload the app. Continue?';
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      setLoading(true);
+
+      // 1) Cache Storage
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map((name) => caches.delete(name)));
+        } catch (e) {
+          console.warn('Cache clearing failed:', e);
+        }
+      }
+
+      // 2) Local and Session Storage
+      try { localStorage.clear(); } catch (e) { /* noop */ }
+      try { sessionStorage.clear(); } catch (e) { /* noop */ }
+
+      // 3) Service Workers
+      if ('serviceWorker' in navigator) {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(
+            registrations.map(async (reg) => {
+              try { await reg.unregister(); } catch (e) { /* noop */ }
+            })
+          );
+        } catch (e) {
+          console.warn('Service worker unregister failed:', e);
+        }
+      }
+
+      // 4) IndexedDB
+      try {
+        if (typeof indexedDB !== 'undefined') {
+          // Prefer supported databases() API when available
+          if (typeof indexedDB.databases === 'function') {
+            const dbs = await indexedDB.databases();
+            await Promise.all(
+              (dbs || []).map((db) => {
+                if (!db || !db.name) return Promise.resolve();
+                return new Promise((resolve) => {
+                  const req = indexedDB.deleteDatabase(db.name);
+                  req.onsuccess = req.onerror = req.onblocked = () => resolve();
+                });
+              })
+            );
+          } else {
+            // Fallback: try deleting some common DB names
+            const fallbackDBs = ['keyval-store', 'localforage'];
+            await Promise.all(
+              fallbackDBs.map((name) => new Promise((resolve) => {
+                const req = indexedDB.deleteDatabase(name);
+                req.onsuccess = req.onerror = req.onblocked = () => resolve();
+              }))
+            );
+          }
+        }
+      } catch (e) {
+        console.warn('IndexedDB clearing failed:', e);
+      }
+
+      // Small delay to allow async cleanup to settle
+      setTimeout(() => {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('hardReload', Date.now().toString());
+          window.location.replace(url.toString());
+        } catch (_e) {
+          // Fallback
+          window.location.reload();
+        }
+      }, 100);
+    } finally {
+      // We may be navigating away; but reset just in case
+      try { setLoading(false); } catch (_) {}
+    }
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark td-blue-bg py-0">
       <div className="container px-lg-5">
@@ -140,6 +223,17 @@ const Header = () => {
             )}
             <li className="nav-item">
               <a className="nav-link" href="#!">Contact</a>
+            </li>
+            <li className="nav-item">
+              <a
+                className="nav-link text-red fw-bold"
+                onClick={handleHardReload}
+                title="Clear cache and hard reload"
+                disabled={loading}
+                href="#!"
+              >
+                <i className="bi bi-arrow-clockwise"></i> Hard Reload
+              </a>
             </li>
             <li className="nav-item dropdown">
               <a 
