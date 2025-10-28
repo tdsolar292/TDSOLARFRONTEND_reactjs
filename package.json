@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cross-env VITE_APP_ENV=local vite",
+    "dev": "cross-env VITE_APP_ENV=local vitest run && vite",
     "build:local": "cross-env VITE_APP_ENV=local vitest run && vite build",
     "build": "cross-env VITE_APP_ENV=prod vitest run && vite build",
     "lint": "eslint .",
