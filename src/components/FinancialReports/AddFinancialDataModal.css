@@ -123,3 +123,108 @@
 }
 .modal-header{    background: linear-gradient(to right, #1D2671, #C33764);
     color: #fff;}
+
+/* Code Suggestions Autocomplete Dropdown */
+.code-suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 1000;
+    animation: dropdown-fade-in 0.2s ease-out;
+}
+
+@keyframes dropdown-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.suggestions-header {
+    padding: 8px 12px;
+    background: linear-gradient(to right, #f3f4f6, #e5e7eb);
+    border-bottom: 1px solid #d1d5db;
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.suggestions-list {
+    padding: 4px;
+}
+
+.suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    color: #374151;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.suggestion-item:hover {
+    background: linear-gradient(to right, #EEF2FF, #E0E7FF);
+    color: #4F46E5;
+    transform: translateX(4px);
+}
+
+.suggestion-item i {
+    color: #9CA3AF;
+    font-size: 0.85rem;
+}
+
+.suggestion-item:hover i {
+    color: #4F46E5;
+}
+
+/* Scrollbar styling for suggestions dropdown */
+.code-suggestions-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.code-suggestions-dropdown::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.code-suggestions-dropdown::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.code-suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Mobile responsive styles for dropdown */
+@media (max-width: 768px) {
+    .code-suggestions-dropdown {
+        max-height: 180px;
+        font-size: 0.85rem;
+    }
+    
+    .suggestion-item {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .suggestions-header {
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+}

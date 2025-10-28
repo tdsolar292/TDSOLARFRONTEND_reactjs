@@ -7,8 +7,8 @@ const financialReportConfig = {
   codeTypes: [
     { value: 'Lp', label: 'Lp' },
     { value: 'Sc', label: 'Sc' },
-    { value: 'COM', label: 'COM' },
-    { value: 'PER', label: 'PER' },
+    { value: 'COMPANY-', label: 'COMPANY-' },
+    { value: 'PERSON-', label: 'PERSON-' },
     { value: 'SELF', label: 'SELF' },
     { value: 'UNSECURE LOAN', label: 'UNSECURE LOAN' },
     { value: 'UNSECURE LOAN PAYMENT', label: 'UNSECURE LOAN PAYMENT' },

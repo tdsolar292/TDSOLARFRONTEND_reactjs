@@ -6,11 +6,14 @@ import { useAuth } from '../../auth';
 import './AddFinancialDataModal.css';
 import financialReportConfig from './financialReportConfig';
 
-const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
+const AddFinancialDataModal = ({ editData, allData = [], onClose, onSuccess }) => {
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isEditMode = !!editData;
+  const [showCodeSuggestions, setShowCodeSuggestions] = useState(false);
+  const [codeSuggestions, setCodeSuggestions] = useState([]);
+  const codeInputRef = React.useRef(null);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     codeType: '',
@@ -30,26 +33,34 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
     if (editData) {
       console.log('Edit Data received:', editData);
       
-      // Split code into type and number if exists
-      // Match pattern: any characters followed by optional digits at the end
-      const codeMatch = editData.code?.match(/^(.+?)(\d*)$/);
-      
       let codeType = '';
       let codeNumber = '';
       
-      if (codeMatch) {
-        const potentialType = codeMatch[1]?.trim() || '';
-        codeNumber = codeMatch[2] || '';
+      // Try to match code against known code types from config
+      if (editData.code) {
+        const configTypes = financialReportConfig?.codeTypes || [];
         
-        // Try to find exact match in config code types
-        const matchedCodeType = financialReportConfig?.codeTypes?.find(
-          ct => potentialType === ct.value || potentialType.startsWith(ct.value)
+        // Find the code type that matches the beginning of the code
+        const matchedCodeType = configTypes.find(
+          ct => editData.code.startsWith(ct.value)
         );
         
         if (matchedCodeType) {
           codeType = matchedCodeType.value;
+          // Extract everything after the code type as the code number
+          codeNumber = editData.code.substring(codeType.length).trim();
         } else {
-          codeType = potentialType;
+          // If no match found, try to split by common patterns
+          // This handles edge cases where code type might not be in config
+          const match = editData.code.match(/^([A-Z-]+)(.*)$/);
+          if (match) {
+            codeType = match[1].trim();
+            codeNumber = match[2].trim();
+          } else {
+            // Last resort: treat entire code as type
+            codeType = editData.code;
+            codeNumber = '';
+          }
         }
       }
       
@@ -103,6 +114,58 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
 
   const cdOptions = (financialReportConfig?.creditDebitOptions?.length ? financialReportConfig.creditDebitOptions : []);
 
+  // Extract unique code numbers based on selected code type
+  const getCodeSuggestionsForType = React.useCallback((codeType, searchTerm = '') => {
+    if (!codeType || !allData || allData.length === 0) return [];
+
+    // Extract codes that match the selected code type
+    const matchingCodes = allData
+      .filter(item => item.code && item.code.startsWith(codeType))
+      .map(item => {
+        // Extract the code number part (everything after the code type)
+        const codeNumber = item.code.substring(codeType.length).trim();
+        return codeNumber;
+      })
+      .filter(codeNum => codeNum); // Remove empty values
+
+    // Get unique code numbers
+    const uniqueCodes = Array.from(new Set(matchingCodes)).sort();
+
+    // Filter based on search term if provided
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      return uniqueCodes.filter(code => 
+        code.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    return uniqueCodes;
+  }, [allData]);
+
+  // Update suggestions when code type or code number changes
+  useEffect(() => {
+    if (formData.codeType) {
+      const suggestions = getCodeSuggestionsForType(formData.codeType, formData.codeNumber);
+      setCodeSuggestions(suggestions);
+    } else {
+      setCodeSuggestions([]);
+    }
+  }, [formData.codeType, formData.codeNumber, getCodeSuggestionsForType]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (codeInputRef.current && !codeInputRef.current.contains(event.target)) {
+        setShowCodeSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Dynamic main header options based on cd selection
   const getMainHeaderOptions = (cdValue) => {
     if (!cdValue) return [];
@@ -122,7 +185,33 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [name]: value });
+
+    // If code type changed, clear code number and hide suggestions
+    if (name === 'codeType') {
+      setFormData({ ...formData, [name]: value, codeNumber: '' });
+      setShowCodeSuggestions(false);
+    }
+  };
+
+  const handleCodeNumberFocus = () => {
+    if (formData.codeType && codeSuggestions.length > 0) {
+      setShowCodeSuggestions(true);
+    }
+  };
+
+  const handleCodeNumberChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, codeNumber: value });
+    if (formData.codeType) {
+      setShowCodeSuggestions(true);
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion) => {
+    setFormData({ ...formData, codeNumber: suggestion });
+    setShowCodeSuggestions(false);
+    codeInputRef.current?.focus();
   };
 
   const handleSubmit = async (e) => {
@@ -213,15 +302,39 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
               </Form.Select>
             </div>
             
-            <div className="col-sm-6 col-md-4 mb-3">
+            <div className="col-sm-6 col-md-4 mb-3" style={{ position: 'relative' }} ref={codeInputRef}>
               <Form.Label className="fw-semibold text-primary">Code Number</Form.Label>
               <Form.Control
                 type="text"
                 name="codeNumber"
-                placeholder="Enter code number"
+                placeholder={formData.codeType ? "Type to search or enter new..." : "Select code type first"}
                 value={formData.codeNumber}
-                onChange={handleChange}
+                onChange={handleCodeNumberChange}
+                onFocus={handleCodeNumberFocus}
+                disabled={!formData.codeType}
+                autoComplete="off"
               />
+              {showCodeSuggestions && codeSuggestions.length > 0 && (
+                <div className="code-suggestions-dropdown">
+                  <div className="suggestions-header">
+                    <small className="text-muted">
+                      {codeSuggestions.length} suggestion{codeSuggestions.length !== 1 ? 's' : ''} for {formData.codeType}
+                    </small>
+                  </div>
+                  <div className="suggestions-list">
+                    {codeSuggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                      >
+                        <i className="bi bi-arrow-return-left me-2"></i>
+                        {suggestion}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="col-sm-6 col-md-4 mb-3">

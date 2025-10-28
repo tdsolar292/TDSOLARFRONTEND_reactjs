@@ -991,7 +991,7 @@ const FinancialReports = () => {
 
       {loading && (<div className="loading-overlay"><div className="loading-content"><Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner><p>Loading financial reports...</p></div></div>)}
 
-      {showModal && (<AddFinancialDataModal editData={editingItem} onClose={handleModalClose} onSuccess={() => handleModalSuccess(!!editingItem)} />)}
+      {showModal && (<AddFinancialDataModal editData={editingItem} allData={allData} onClose={handleModalClose} onSuccess={() => handleModalSuccess(!!editingItem)} />)}
 
       {/* View Details Modal */}
       {viewDetails.show && viewDetails.item && (
