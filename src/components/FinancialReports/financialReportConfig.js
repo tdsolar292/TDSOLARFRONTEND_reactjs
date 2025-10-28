@@ -39,7 +39,7 @@ const financialReportConfig = {
     'LIC 7000',
     'ICICI SA',
     'C/A FD-250000',
-    'Sourav SA',
+    'SOURAV SA',
   ],
 
   // Credit/Debit options

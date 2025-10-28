@@ -625,19 +625,21 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
                       <option value="INDUSLND BANK CREDIT CARD">INDUSLND BANK CREDIT CARD</option>
                       <option value="PAYTM">PAYTM</option>
                       <option value="CASH FOR TD">CASH FOR TD</option>
+                      <option value="SBI TD CA">SBI TD CA</option>
                       <option value="SBI SA">SBI SA</option>
                       <option value="SBI SA PPF">SBI SA PPF</option>
                       <option value="SBI SA CREDIT CARD">SBI SA CREDIT CARD</option>
+                      <option value="SBI OD">SBI OD</option>
                       <option value="HDFC HOME LOAN">HDFC HOME LOAN</option>
                       <option value="HDFC HOME LOAN INSURANCE">HDFC HOME LOAN INSURANCE</option>
-                      <option value="SBI CA">SBI CA</option>
+                      <option value="RUPA CA">RUPA CA</option>
                       <option value="PNB SA">PNB SA</option>
                       <option value="PNB APY">PNB APY</option>
                       <option value="PNB SSA">PNB SSA</option>
                       <option value="LIC 3215">LIC 3215</option>
                       <option value="LIC 7000">LIC 7000</option>
                       <option value="ICICI SA">ICICI SA</option>
-                      <option value="RUPA CA">RUPA CA</option>
+                      <option value="SOURAV SA">SOURAV SA</option>
                       <option value="C/A FD-250000">C/A FD-250000</option>
                     </select>
                   </div>
