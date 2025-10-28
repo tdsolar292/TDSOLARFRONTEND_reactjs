@@ -58,6 +58,7 @@ const FinancialReports = () => {
   const [showMainAccountDropdown, setShowMainAccountDropdown] = useState(false);
   const [highlightedRowId, setHighlightedRowId] = useState(null);
   const [preventPageReset, setPreventPageReset] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
@@ -172,6 +173,19 @@ const FinancialReports = () => {
   }, [allData, filters, sortColumn, sortDirection]);
 
   useEffect(() => { fetchData(); }, []);
+  // Detect mobile viewport for responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      try {
+        setIsMobile(window.innerWidth <= 768);
+      } catch (_) {
+        setIsMobile(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   useEffect(() => { 
     recomputeFromFiltered(); 
     if (!preventPageReset) {
@@ -809,7 +823,7 @@ const FinancialReports = () => {
       </div>
 
       <div className="table-container">
-        <div className="table-responsive">
+        <div className={`table-responsive ${isMobile ? 'table-layout-auto' : 'table-layout-fixed'}`}>
           <table className="table financial-reports-table">
             <thead>
               <tr>
@@ -824,31 +838,31 @@ const FinancialReports = () => {
                     />
                   </th>
                 )}
-                <th scope="col" className="sortable" onClick={() => handleSort('code')} style={{ width: '8%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('code')} style={isMobile ? undefined : { width: '15%' }}>
                   Code {getSortIcon('code')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('date')} style={{ width: '6%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('date')} style={isMobile ? undefined : { width: '6%' }}>
                   Date {getSortIcon('date')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('fromAccount')} style={{ width: '8%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('fromAccount')} style={isMobile ? undefined : { width: '8%' }}>
                   From Account {getSortIcon('fromAccount')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('throughBy')} style={{ width: '8%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('throughBy')} style={isMobile ? undefined : { width: '8%' }}>
                   Through/By {getSortIcon('throughBy')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('toAccount')} style={{ width: '8%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('toAccount')} style={isMobile ? undefined : { width: '8%' }}>
                   To Account {getSortIcon('toAccount')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('cd')} style={{ width: '5%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('cd')} style={isMobile ? undefined : { width: '5%' }}>
                   C/D {getSortIcon('cd')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('mainHeader')} style={{ width: '22%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('mainHeader')} style={isMobile ? undefined : { width: '22%' }}>
                   Main Header {getSortIcon('mainHeader')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('subHeader')} style={{ width: '17%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('subHeader')} style={isMobile ? undefined : { width: '10%' }}>
                   Sub Header {getSortIcon('subHeader')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('amount')} style={{ width: '8%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('amount')} style={isMobile ? undefined : { width: '8%' }}>
                   Amount {getSortIcon('amount')}
                 </th>
                 <th scope="col" style={{ width: '8%' }}>Actions</th>
@@ -869,7 +883,7 @@ const FinancialReports = () => {
                       />
                     </td>
                   )}
-                  <td title={row.code} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td title={row.code} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '15%', maxWidth: '15%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.code}
                     {isFromPaymentReceipt(item) && (
                       <span 
@@ -893,13 +907,13 @@ const FinancialReports = () => {
                       </span>
                     )}
                   </td>
-                  <td title={row.date} style={{ width: '6%', maxWidth: '6%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.date}</td>
-                  <td title={row.fromAccount} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.fromAccount}</td>
-                  <td title={item.throughBy || ''} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.throughBy || '-'}</td>
-                  <td title={row.toAccount} style={{ width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.toAccount}</td>
-                  <td title={getDynamicCD(item)} style={{ width: '5%', maxWidth: '5%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
-                  <td title={row.mainHeader} style={{ width: '22%', maxWidth: '22%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.mainHeader}</td>
-                  <td title={row.subHeader} style={{ width: '17%', maxWidth: '17%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.subHeader}</td>
+                  <td title={row.date} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '6%', maxWidth: '6%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.date}</td>
+                  <td title={row.fromAccount} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.fromAccount}</td>
+                  <td title={item.throughBy || ''} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.throughBy || '-'}</td>
+                  <td title={row.toAccount} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.toAccount}</td>
+                  <td title={getDynamicCD(item)} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '5%', maxWidth: '5%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
+                  <td title={row.mainHeader} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '22%', maxWidth: '22%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.mainHeader}</td>
+                  <td title={row.subHeader} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '10%', maxWidth: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.subHeader}</td>
                   <td style={{ width: '8%', maxWidth: '8%' }}>
                     {item.isVerified ? (
                       <i 

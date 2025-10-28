@@ -11,7 +11,7 @@
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border: #e2e8f0;
-  --table-header-bg: #fef08a;
+  --table-header-bg: #8af3ef;
   --summary-bg: #dbeafe;
   --page-bg: #f8fafc;
 }
@@ -444,6 +444,7 @@
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   font-size: 0.675rem;
+  border-left:1px solid var(--border);
 }
 
 .action-btn {
@@ -917,4 +918,49 @@
 
 .table-responsive::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
+}
+
+/* Utility classes to control table layout */
+.table-layout-fixed .financial-reports-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table-layout-auto .financial-reports-table {
+  table-layout: auto;
+  width: max-content;
+}
+
+.table-layout-auto .financial-reports-table th,
+.table-layout-auto .financial-reports-table td {
+  width: auto !important;
+  max-width: none !important;
+  white-space: nowrap;
+}
+
+/* Mobile: auto-width columns based on content */
+@media (max-width: 768px) {
+  /* Let table calculate natural column sizes */
+  .financial-reports-table {
+    table-layout: auto;
+    width: max-content; /* allow horizontal scroll to fit content */
+  }
+
+  /* Override any inline widths from JSX for mobile */
+  .financial-reports-table th,
+  .financial-reports-table td {
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  /* Keep content on a single line so columns size to content; rely on horizontal scroll */
+  .financial-reports-table th,
+  .financial-reports-table td {
+    white-space: nowrap;
+  }
+
+  /* Ensure container scrolls horizontally when needed */
+  .table-responsive {
+    overflow-x: auto;
+  }
 }
