@@ -20,6 +20,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
     toAccount: '',
     cd: '',
     mainHeader: '',
+    meterReading: '',
     subHeader: '',
     amount: ''
   });
@@ -61,6 +62,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
         toAccount: editData.toAccount || '',
         cd: editData.cd || '',
         mainHeader: editData.mainHeader || '',
+        meterReading: editData.meterReading || '',
         subHeader: editData.subHeader || '',
         amount: editData.amount || ''
       };
@@ -137,6 +139,7 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
         toAccount: formData.toAccount,
         cd: formData.cd,
         mainHeader: formData.mainHeader,
+        meterReading: formData.meterReading ? parseFloat(formData.meterReading) : null,
         subHeader: formData.subHeader,
         amount: parseFloat(formData.amount)
       };
@@ -295,12 +298,25 @@ const AddFinancialDataModal = ({ editData, onClose, onSuccess }) => {
               </Form.Select>
             </div>
             
+            {formData.mainHeader.includes('WAGE_FUEL') && (
+              <div className="col-sm-6 col-md-4 mb-3">
+                <Form.Label className="fw-semibold text-primary">Meter Readings</Form.Label>
+                <Form.Control
+                  type="number"
+                  min="0"
+                  name="meterReading"
+                  placeholder="Enter meter reading"
+                  value={formData.meterReading}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
+            
             <div className="col-sm-6 col-md-4 mb-3">
               <Form.Label className="fw-semibold text-primary">Amount</Form.Label>
               <Form.Control
                 type="number"
                 min="0"
-                step="0.01"
                 name="amount"
                 placeholder="0.00"
                 value={formData.amount}
