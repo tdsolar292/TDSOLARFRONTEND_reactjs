@@ -180,7 +180,11 @@ const FinancialReports = () => {
     setPreventPageReset(false);
     setSelectedItems([]); 
   }, [filteredData, pageSize]);
-  useEffect(() => { setReports(paginate(filteredData)); setSelectedItems([]); }, [page, pageSize]);
+  useEffect(() => { 
+    // On page change, only update the paginated slice to avoid unnecessary recomputations
+    setReports(paginate(filteredData));
+    setSelectedItems([]); 
+  }, [page]);
   
   // Handle clicking outside the Main Account dropdown
   useEffect(() => {
@@ -852,7 +856,7 @@ const FinancialReports = () => {
             </thead>
             <tbody>
               {reports.map((item, idx) => { const row = mapToRow(item); return (
-                <tr key={idx} className={`${isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''} ${selectedItems.includes(item._id) ? 'row-selected' : ''} ${highlightedRowId === item._id ? 'highlighted-row' : ''}`}>
+                <tr key={item._id || idx} className={`${isFromPaymentReceipt(item) ? 'from-payment-receipt' : ''} ${selectedItems.includes(item._id) ? 'row-selected' : ''} ${highlightedRowId === item._id ? 'highlighted-row' : ''}`}>
                   {isAdmin && (
                     <td>
                       <input 
