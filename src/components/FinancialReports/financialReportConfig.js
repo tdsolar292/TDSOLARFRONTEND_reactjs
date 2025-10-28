@@ -18,6 +18,7 @@ const financialReportConfig = {
   ],
 
   // Account names for fromAccount and toAccount dropdowns
+  // If you change anything here the same will change automatically in Payment Receipt page 
   accountNames: [
     'NA',
     'HDFC CREDIT CARD',

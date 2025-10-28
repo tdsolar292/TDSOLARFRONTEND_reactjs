@@ -4,6 +4,7 @@ import config from '../../config';
 import axios from "axios";
 import { updateInvoiceStatus } from '../common/common.jsx';
 import './PaymentReceipt.css'; // Add this import if you want to use custom styles
+import financialReportConfig from '../FinancialReports/financialReportConfig';
 
 const getTodayDate = () => {
   const d = new Date();
@@ -620,27 +621,9 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
                       required
                     >
                       <option value="">Choose...</option>
-                      <option value="NA">NA</option>
-                      <option value="HDFC CREDIT CARD">HDFC CREDIT CARD</option>
-                      <option value="INDUSLND BANK CREDIT CARD">INDUSLND BANK CREDIT CARD</option>
-                      <option value="PAYTM">PAYTM</option>
-                      <option value="CASH FOR TD">CASH FOR TD</option>
-                      <option value="SBI TD CA">SBI TD CA</option>
-                      <option value="SBI SA">SBI SA</option>
-                      <option value="SBI SA PPF">SBI SA PPF</option>
-                      <option value="SBI SA CREDIT CARD">SBI SA CREDIT CARD</option>
-                      <option value="SBI OD">SBI OD</option>
-                      <option value="HDFC HOME LOAN">HDFC HOME LOAN</option>
-                      <option value="HDFC HOME LOAN INSURANCE">HDFC HOME LOAN INSURANCE</option>
-                      <option value="RUPA CA">RUPA CA</option>
-                      <option value="PNB SA">PNB SA</option>
-                      <option value="PNB APY">PNB APY</option>
-                      <option value="PNB SSA">PNB SSA</option>
-                      <option value="LIC 3215">LIC 3215</option>
-                      <option value="LIC 7000">LIC 7000</option>
-                      <option value="ICICI SA">ICICI SA</option>
-                      <option value="SOURAV SA">SOURAV SA</option>
-                      <option value="C/A FD-250000">C/A FD-250000</option>
+                      {(financialReportConfig?.accountNames || []).map((name) => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
