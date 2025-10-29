@@ -10,6 +10,7 @@ import exportFinancialDataToExcel from "./FinancialDataExcel";
 import { useAuth } from "../../auth";
 import financialReportConfig from "./financialReportConfig";
 import FinancialSummary from "./FinancialSummary";
+import FinancialOverview from "./FinancialOverview";
 
 const cardDataTemplate = [
   { value: 0, label: "Credit", icon: "bi-graph-up", color: "var(--success)" },
@@ -1008,6 +1009,8 @@ const FinancialReports = () => {
         </>
       ) : section === 'summary' ? (
         <FinancialSummary onNavigateToReports={handleNavigateFromSummary} />
+      ) : section === 'pendings' ? (
+        <FinancialOverview allData={allData} />
       ) : (
         <div className="fr-placeholder">
           <h3>{sections.find(s => s.key === section)?.label}</h3>
