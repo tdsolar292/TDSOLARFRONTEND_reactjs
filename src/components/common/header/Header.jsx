@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../auth';
 import axios from 'axios';
@@ -13,10 +13,90 @@ const Header = () => {
   const [backupStatus, setBackupStatus] = useState(null);
   const [backupList, setBackupList] = useState([]);
   const [loading, setLoading] = useState(false);
+  // PWA install (minimal)
+  const [installPromptEvent, setInstallPromptEvent] = useState(null);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  // --- Simple Screen Zoom Controls ---
+  const applyZoom = (percent) => {
+    try {
+      const factor = Math.max(50, Math.min(200, Number(percent))) / 100; // clamp 50%-200%
+      document.body.style.zoom = String(factor);
+      try {
+        if (Number(percent) === 100) {
+          localStorage.removeItem('tds_zoom_percent');
+        } else {
+          localStorage.setItem('tds_zoom_percent', String(percent));
+        }
+      } catch (_) {}
+    } catch (e) {
+      // no-op
+    }
+  };
+
+  const handleZoomClick = (percent) => (e) => {
+    e?.preventDefault?.();
+    applyZoom(percent);
+  };
+
+  // Restore saved zoom on load
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('tds_zoom_percent');
+      if (saved) {
+        applyZoom(Number(saved));
+      } else {
+        const w = window.innerWidth;
+        if (w >= 1360 && w < 1400) {
+          applyZoom(90);
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  // Minimal PWA hooks: detect install prompt and standalone
+  useEffect(() => {
+    const handleBIP = (e) => {
+      e.preventDefault();
+      setInstallPromptEvent(e);
+    };
+    const mm = window.matchMedia && window.matchMedia('(display-mode: standalone)');
+    const updateStandalone = () => {
+      try {
+        setIsStandalone((mm && mm.matches) || window.navigator.standalone === true);
+      } catch (_) {
+        setIsStandalone(false);
+      }
+    };
+    updateStandalone();
+    window.addEventListener('beforeinstallprompt', handleBIP);
+    mm && mm.addEventListener && mm.addEventListener('change', updateStandalone);
+    window.addEventListener('appinstalled', updateStandalone);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBIP);
+      mm && mm.removeEventListener && mm.removeEventListener('change', updateStandalone);
+      window.removeEventListener('appinstalled', updateStandalone);
+    };
+  }, []);
+
+  const handleInstallApp = async (e) => {
+    e?.preventDefault?.();
+    if (isStandalone) {
+      alert('App is already installed on this device.');
+      return;
+    }
+    if (installPromptEvent && installPromptEvent.prompt) {
+      installPromptEvent.prompt();
+      try { await installPromptEvent.userChoice; } catch (_) {}
+      setInstallPromptEvent(null);
+    } else {
+      alert('Install prompt is not available. Please use your browser\'s "Install app" or "Add to Home screen" option.');
+    }
   };
 
   const handleTriggerBackup = async () => {
@@ -182,9 +262,8 @@ const Header = () => {
     <nav className="navbar navbar-expand-lg navbar-dark td-blue-bg py-0">
       <div className="container px-lg-5">
         <Link className="navbar-brand" to="/">
-          <img src="/tslogo.png" className='active-clients-logo-spin' alt="logo" width="60" />
-          CRM&nbsp;
           <span className="brand-td-solar">
+          <img src="/tslogo.png" className='active-clients-logo-spin' alt="logo" width="60" />
              TD SOLAR
           </span>
         </Link>
@@ -243,7 +322,7 @@ const Header = () => {
                 data-bs-toggle="dropdown" 
                 aria-expanded="false"
               >
-                <i className="bi bi-person-circle"></i>
+                <i className="bi bi-person-circle pe-1"></i>
                 {user?.name || user?.username || 'User'}
               </a>
               <ul className="dropdown-menu">
@@ -261,6 +340,43 @@ const Header = () => {
                 <li>
                   <a className="dropdown-item" href="#!">
                     <i className="bi bi-gear"></i> Settings
+                  </a>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#!" onClick={handleInstallApp}>
+                    <i className="bi bi-download"></i> Download App
+                  </a>
+                </li>
+                {/* Screen View (Zoom) */}
+                <li><hr className="dropdown-divider" /></li>
+                <li>
+                  <div className="dropdown-item-text">
+                    <small className="text-muted">Screen View</small>
+                  </div>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#!" onClick={handleZoomClick(75)}>
+                    75% Screen View
+                  </a>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#!" onClick={handleZoomClick(80)}>
+                    80% Screen View
+                  </a>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#!" onClick={handleZoomClick(85)}>
+                    85% Screen View
+                  </a>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#!" onClick={handleZoomClick(90)}>
+                    90% Screen View
+                  </a>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#!" onClick={handleZoomClick(100)}>
+                    100% Screen View
                   </a>
                 </li>
                 <li><hr className="dropdown-divider" /></li>

@@ -39,6 +39,13 @@ const USERS = {
     role: import.meta.env.VITE_SK_ROLE,
     name: import.meta.env.VITE_SK_NAME,
     canAccessFinancialReports: import.meta.env.VITE_SK_FINANCIAL_ACCESS === 'true'
+  },
+  rupa: {
+    username: import.meta.env.VITE_RUPA_USERNAME,
+    password: import.meta.env.VITE_RUPA_PASSWORD,
+    role: import.meta.env.VITE_RUPA_ROLE,
+    name: import.meta.env.VITE_RUPA_NAME,
+    canAccessFinancialReports: import.meta.env.VITE_RUPA_FINANCIAL_ACCESS === 'true'
   }
 };
 

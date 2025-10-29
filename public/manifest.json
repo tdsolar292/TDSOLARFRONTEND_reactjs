@@ -1,0 +1,25 @@
+{
+  "name": "TD Solar CRM",
+  "short_name": "TD CRM",
+  "description": "TD Solar CRM - Streamline your solar business with fast proformas, receipts and insightful financial reports",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d6efd",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/tslogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/tslogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

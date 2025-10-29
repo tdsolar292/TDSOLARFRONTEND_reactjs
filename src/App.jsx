@@ -68,7 +68,7 @@ function App() {
           {/* Page Features */}
           <div className="row gx-lg-5 gy-4">
             <div
-              className="col-lg-6 col-xxl-4"
+              className="col-lg-3 col-xxl-3"
               onClick={(e) => {
                 e.preventDefault();
                 handleViewActiveClients();
@@ -80,17 +80,14 @@ function App() {
                   <div className="home-card-icon">
                     <TbFileInvoice />
                   </div>
-                  <h2 className="home-card-title">TD Proformas & Clients</h2>
-                  <p className="home-card-desc">
-                    Domestic & Commercial Proformas, Active Client Details, Payment Receipts, GST Invoices.
-                  </p>
+                  <h2 className="home-card-title">TD Proformas & Invoices</h2>
                 </div>
               </div>
             </div>
 
             {/* Financial Reports card */}
             <div
-              className="col-lg-6 col-xxl-4"
+              className="col-lg-3 col-xxl-3"
               onClick={(e) => {
                 e.preventDefault();
                 handleViewFinancialReports();
@@ -103,9 +100,6 @@ function App() {
                     <TbFileInvoice />
                   </div>
                   <h2 className="home-card-title">Financial Reports</h2>
-                  <p className="home-card-desc">
-                    Track credits, debits and net balances with beautiful exports and quick insights.
-                  </p>
                 </div>
               </div>
             </div>

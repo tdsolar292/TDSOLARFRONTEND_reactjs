@@ -15,7 +15,7 @@
   --summary-bg: #dbeafe;
   --page-bg: #f8fafc;
 }
-
+.table-responsive
 /* Modern Dashboard Layout */
 .financial-reports-box {
   padding: 0.75rem;
@@ -897,7 +897,7 @@
 /* Custom scrollbar for table */
 .table-responsive {
   overflow-x: auto;
-  max-height: calc(100vh - 320px);
+  max-height: calc(100vh - 205px);
   overflow-y: auto;
 }
 

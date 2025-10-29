@@ -94,7 +94,7 @@ const Login = () => {
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
-            <img src="assets/tslogo.png" alt="Logo" className="logo-image active-clients-logo-spin" />
+            <img src="/src/assets/tslogo.png" alt="Logo" className="logo-image active-clients-logo-spin" />
           </div>
           <h1 className="login-title">TD SOLAR CRM</h1>
           <p className="login-subtitle">Sign in to your account</p>

@@ -19,6 +19,13 @@ const cardDataTemplate = [
 
 const tableDisplayHeaders = ["Code", "Date", "From Account", "To Account", "C/D", "Main Header", "Sub Header", "Amount", "Actions"];
 
+// Format date from YYYY-MM-DD to DD-MM-YYYY
+const formatDate = (d) => {
+  if (!d || typeof d !== 'string') return d;
+  const parts = d.split('-');
+  return parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : d;
+};
+
 const FinancialReports = () => {
   const { user } = useAuth();
   const [startDate, setStartDate] = useState("");
@@ -40,12 +47,12 @@ const FinancialReports = () => {
   const [summary, setSummary] = useState({ credit: 0, debit: 0, net: 0 });
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(15);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [section, setSection] = useState('creditDebit');
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null });
   const [sortColumn, setSortColumn] = useState('date');
@@ -54,7 +61,7 @@ const FinancialReports = () => {
   const [toast, setToast] = useState({ show: false, message: '', variant: 'success' });
   const [selectedItems, setSelectedItems] = useState([]);
   const [verifying, setVerifying] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
+  const [showSummary, setShowSummary] = useState(true);
   const [showMainAccountDropdown, setShowMainAccountDropdown] = useState(false);
   const [highlightedRowId, setHighlightedRowId] = useState(null);
   const [preventPageReset, setPreventPageReset] = useState(false);
@@ -841,7 +848,7 @@ const FinancialReports = () => {
                 <th scope="col" className="sortable" onClick={() => handleSort('code')} style={isMobile ? undefined : { width: '15%' }}>
                   Code {getSortIcon('code')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('date')} style={isMobile ? undefined : { width: '6%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('date')} style={isMobile ? undefined : { width: '9%' }}>
                   Date {getSortIcon('date')}
                 </th>
                 <th scope="col" className="sortable" onClick={() => handleSort('fromAccount')} style={isMobile ? undefined : { width: '8%' }}>
@@ -853,10 +860,10 @@ const FinancialReports = () => {
                 <th scope="col" className="sortable" onClick={() => handleSort('toAccount')} style={isMobile ? undefined : { width: '8%' }}>
                   To Account {getSortIcon('toAccount')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('cd')} style={isMobile ? undefined : { width: '5%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('cd')} style={isMobile ? undefined : { width: '4%' }}>
                   C/D {getSortIcon('cd')}
                 </th>
-                <th scope="col" className="sortable" onClick={() => handleSort('mainHeader')} style={isMobile ? undefined : { width: '22%' }}>
+                <th scope="col" className="sortable" onClick={() => handleSort('mainHeader')} style={isMobile ? undefined : { width: '20%' }}>
                   Main Header {getSortIcon('mainHeader')}
                 </th>
                 <th scope="col" className="sortable" onClick={() => handleSort('subHeader')} style={isMobile ? undefined : { width: '10%' }}>
@@ -907,12 +914,12 @@ const FinancialReports = () => {
                       </span>
                     )}
                   </td>
-                  <td title={row.date} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '6%', maxWidth: '6%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.date}</td>
+                  <td title={formatDate(row.date)} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '9%', maxWidth: '9%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formatDate(row.date)}</td>
                   <td title={row.fromAccount} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.fromAccount}</td>
                   <td title={item.throughBy || ''} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.throughBy || '-'}</td>
                   <td title={row.toAccount} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '8%', maxWidth: '8%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.toAccount}</td>
-                  <td title={getDynamicCD(item)} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '5%', maxWidth: '5%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
-                  <td title={row.mainHeader} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '22%', maxWidth: '22%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.mainHeader}</td>
+                  <td title={getDynamicCD(item)} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '4%', maxWidth: '4%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><span className={getDynamicCD(item) === 'C' ? 'amount-credit' : 'amount-debit'}>{getDynamicCD(item)}</span></td>
+                  <td title={row.mainHeader} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '20%', maxWidth: '20%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.mainHeader}</td>
                   <td title={row.subHeader} style={isMobile ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } : { width: '10%', maxWidth: '10%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.subHeader}</td>
                   <td style={{ width: '8%', maxWidth: '8%' }}>
                     {item.isVerified ? (
@@ -971,6 +978,7 @@ const FinancialReports = () => {
               <label>Show</label>
               <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="page-size-select">
                 <option value="10">10</option>
+                <option value="15">15</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
