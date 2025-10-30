@@ -57,8 +57,6 @@ const AddPaymentModal = ({ show, onClose, onSuccess, type, editData = null }) =>
     setLoading(true);
 
     try {
-      const apiUrl = `${config.MernBaseURL}/financialSummary/add`;
-      
       // Prepare the payload according to API structure
       const payload = {
         type: type, // 'in' or 'out'
@@ -70,14 +68,20 @@ const AddPaymentModal = ({ show, onClose, onSuccess, type, editData = null }) =>
         }
       };
 
-      // If editing, include the _id
+      let response;
       if (editData && editData._id) {
-        payload[type]._id = editData._id;
+        // Edit operation - use PUT to edit endpoint
+        const editUrl = `${config.MernBaseURL}/financialSummary/edit/${editData._id}`;
+        response = await axios.put(editUrl, payload);
+      } else {
+        // Add operation - use POST to add endpoint
+        const addUrl = `${config.MernBaseURL}/financialSummary/add`;
+        response = await axios.post(addUrl, payload);
       }
-
-      await axios.post(apiUrl, payload);
       
-      // Success - close modal and refresh data
+      // Success - reset form, close modal and refresh data
+      setFormData({ client: '', desc: '', amount: '' });
+      setError('');
       onSuccess();
       onClose();
     } catch (err) {
@@ -100,8 +104,8 @@ const AddPaymentModal = ({ show, onClose, onSuccess, type, editData = null }) =>
 
   return (
     <div className="payment-modal-overlay" onClick={handleClose}>
-      <div className="payment-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="payment-modal-header">
+      <div className={`payment-modal ${type === 'out' ? 'payment-modal-out' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <div className={`payment-modal-header ${type === 'out' ? 'payment-modal-header-out' : ''}`}>
           <h3>
             <i className={`bi ${type === 'in' ? 'bi-arrow-down-circle' : 'bi-arrow-up-circle'}`}></i>
             {' '}

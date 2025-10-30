@@ -69,13 +69,16 @@ const FinancialOverview = ({ allData = [] }) => {
       .filter(account => account.balance < 0)
       .reduce((sum, account) => sum + account.balance, 0);
     
+    // Calculate current status: total bank balance + negative credit card balance + total in - total out
+    const currentStatus = totalBankBalance + negativeCreditCardBalance + apiTotalIn - apiTotalOut;
+    
     return {
       totalBankBalance: totalBankBalance,
       creditCardBalance: negativeCreditCardBalance,
       showCreditCardSummary: negativeCreditCardBalance < 0, // Show only if there are negative balances
       totalIn: apiTotalIn, // From API
       totalOut: apiTotalOut, // From API
-      currentStatus: totalBankBalance // Same as total bank balance (excluding credit cards)
+      currentStatus: currentStatus
     };
   }, [bankAccounts, apiTotalIn, apiTotalOut]);
 
@@ -105,7 +108,7 @@ const FinancialOverview = ({ allData = [] }) => {
     setShowModal(true);
   };
 
-  const handleAction = (type, id) => {
+  const handleAction = async (type, id) => {
     const [action, paymentType] = type.split('-'); // e.g., 'edit-in' or 'delete-out'
     
     if (action === 'edit') {
@@ -119,9 +122,32 @@ const FinancialOverview = ({ allData = [] }) => {
         setShowModal(true);
       }
     } else if (action === 'delete') {
-      // Handle delete (can be implemented later)
-      console.log(`Delete ${paymentType} payment with id ${id}`);
-      // TODO: Implement delete functionality
+      // Handle delete with confirmation
+      const paymentArray = paymentType === 'in' ? paymentsIn : paymentsOut;
+      const payment = paymentArray.find(p => p._id === id);
+      
+      if (!payment) {
+        alert('Payment not found!');
+        return;
+      }
+      
+      const confirmMessage = `Are you sure you want to delete this ${paymentType.toUpperCase()} payment?\n\nClient: ${payment.clientName}\nAmount: ${formatAmount(payment.amount)}`;
+      
+      if (window.confirm(confirmMessage)) {
+        setLoading(true);
+        try {
+          await axios.delete(`${config.MernBaseURL}/financialSummary/deleteEntry/${id}`, {
+            data: { type: paymentType }
+          });
+          // Refresh data after successful delete
+          await fetchFinancialSummary();
+        } catch (err) {
+          console.error('Error deleting payment:', err);
+          alert(err.response?.data?.message || 'Failed to delete payment. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      }
     }
   };
 
@@ -218,8 +244,8 @@ const FinancialOverview = ({ allData = [] }) => {
           </div>
           <div key="current-status" className="summary-card highlighted">
             <div className="summary-label">Current Status</div>
-            <div className="summary-value status">
-              {formatAmount(summaryData.currentStatus)}
+            <div className={`summary-value ${summaryData.currentStatus < 0 ? 'negative' : 'status'}`}>
+              {summaryData.currentStatus < 0 ? '-' : ''}{formatAmount(summaryData.currentStatus)}
             </div>
           </div>
         </div>
@@ -327,7 +353,7 @@ const FinancialOverview = ({ allData = [] }) => {
         <div className="overview-table-container">
           <div className="overview-table-header">
             <h3>Future Payments OUT Details</h3>
-            <button className="add-btn" onClick={handleAddPaymentOut}>
+            <button className="add-btn add-btn-out" onClick={handleAddPaymentOut}>
               <i className="bi bi-plus-circle"></i> Add+
             </button>
           </div>

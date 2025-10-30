@@ -1008,7 +1008,10 @@ const FinancialReports = () => {
 
         </>
       ) : section === 'summary' ? (
-        <FinancialSummary onNavigateToReports={handleNavigateFromSummary} />
+        <>
+          <FinancialOverview allData={allData} />
+          <FinancialSummary allData={allData} onNavigateToReports={handleNavigateFromSummary} />
+        </>
       ) : section === 'pendings' ? (
         <FinancialOverview allData={allData} />
       ) : (

@@ -2,7 +2,6 @@
 .financial-overview-container {
   padding: 1.5rem;
   background-color: var(--light-bg, #f8f9fa);
-  min-height: 100vh;
 }
 
 /* Summary Section */
@@ -189,6 +188,18 @@
 
 .add-btn i {
   font-size: 1rem;
+}
+
+/* Light Red Theme for OUT Button */
+.add-btn-out {
+  background: #ef9a9a !important; /* Light red */
+  color: white;
+}
+
+.add-btn-out:hover {
+  background: #e57373 !important; /* Slightly darker light red on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(239, 154, 154, 0.5);
 }
 
 .overview-table-wrapper {
@@ -462,6 +473,16 @@
 .payment-modal-header h3 i {
   font-size: 1.5rem;
   color: #4caf50;
+}
+
+/* Light Red Theme for OUT Modal Header */
+.payment-modal-header-out {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%) !important;
+  border-bottom: 2px solid #ef9a9a !important;
+}
+
+.payment-modal-header-out h3 i {
+  color: #e57373 !important;
 }
 
 .payment-modal-header .close-btn {

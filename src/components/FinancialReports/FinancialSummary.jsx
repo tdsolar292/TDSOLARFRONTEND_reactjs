@@ -6,51 +6,32 @@ import financialReportConfig from "./financialReportConfig";
 import Spinner from "react-bootstrap/Spinner";
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const FinancialSummary = ({ onNavigateToReports }) => {
+const FinancialSummary = ({ allData = [], onNavigateToReports }) => {
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
   };
 
-  const [allData, setAllData] = useState([]);
   const [accountFilter, setAccountFilter] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState(getTodayDate());
-  const [loading, setLoading] = useState(false);
-  const [accountOptions, setAccountOptions] = useState([]);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const apiUrl = `${config.MernBaseURL}/financialData/getAll`;
-      const response = await axios.get(apiUrl, { headers: { Accept: 'application/json' } });
-      const payload = response?.data;
-      const all = Array.isArray(payload) ? payload : (payload?.data || []);
-      
-      setAllData(all);
-      
-      // Get unique accounts from data
-      const derivedAccounts = Array.from(
-        new Set([
-          ...all.map(r => r.fromAccount),
-          ...all.map(r => r.toAccount)
-        ].filter(Boolean))
-      ).sort();
-      
-      const cfgAccounts = financialReportConfig?.accountNames || [];
-      setAccountOptions(cfgAccounts.length ? cfgAccounts : derivedAccounts);
-    } catch (e) {
-      console.error('Failed to load financial data', e);
-      setAllData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Derive account options from the passed allData
+  const accountOptions = useMemo(() => {
+    const cfgAccounts = financialReportConfig?.accountNames || [];
+    if (cfgAccounts.length) return cfgAccounts;
+    
+    // Get unique accounts from data if no config accounts
+    const derivedAccounts = Array.from(
+      new Set([
+        ...allData.map(r => r.fromAccount),
+        ...allData.map(r => r.toAccount)
+      ].filter(Boolean))
+    ).sort();
+    
+    return derivedAccounts;
+  }, [allData]);
 
   const filteredData = useMemo(() => {
     let filtered = allData;
@@ -261,14 +242,6 @@ const FinancialSummary = ({ onNavigateToReports }) => {
               title="Clear Filters"
             >
               <i className="bi bi-eraser"></i>
-            </button>
-            <button 
-              type="button" 
-              className="btn btn-outline-success icon-btn" 
-              onClick={fetchData}
-              title="Refresh Data"
-            >
-              <i className="bi bi-arrow-clockwise"></i>
             </button>
           </div>
         </div>
@@ -586,17 +559,6 @@ const FinancialSummary = ({ onNavigateToReports }) => {
           </div>
         </div>
       </div>
-
-      {loading && (
-        <div className="loading-overlay">
-          <div className="loading-content">
-            <Spinner animation="border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>
-            <p>Loading summary...</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
