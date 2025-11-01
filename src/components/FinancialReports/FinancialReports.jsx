@@ -787,6 +787,35 @@ const FinancialReports = () => {
                           <span>{acc}</span>
                         </div>
                       ))}
+                      
+                      {/* OK Button */}
+                      <div 
+                        style={{
+                          paddingBottom: '0.4rem',
+                          borderTop: '1px solid var(--border-color)',
+                          backgroundColor: 'var(--light-bg)',
+                          display: 'flex',
+                          justifyContent: 'flex-end',
+                          position: 'sticky',
+                          bottom: 0
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => setShowMainAccountDropdown(false)}
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            fontSize: '0.8rem',
+                            borderRadius: '4px',
+                            backgroundColor: '#6c757d',
+                            border: 'none',
+                            color: 'white'
+                          }}
+                        >
+                          Ok
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
