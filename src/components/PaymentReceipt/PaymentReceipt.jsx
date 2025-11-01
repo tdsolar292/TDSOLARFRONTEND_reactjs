@@ -561,6 +561,7 @@ const PaymentReceipt = ({ show, handleClose, rowData }) => {
                     <option value="Credit Card">Credit Card</option>
                     <option value="UPI">UPI</option>
                     <option value="NEFT">NEFT</option>
+                    <option value="CHEQUE">CHEQUE</option>
                     <option value="Cash">Cash</option>
                     <option value="Others">Other</option>
                   </select>

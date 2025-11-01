@@ -41,6 +41,7 @@ const financialReportConfig = {
     'ICICI SA',
     'C/A FD-250000',
     'SOURAV SA',
+    'PHONEPAY'
   ],
 
   // Credit/Debit options
@@ -83,7 +84,8 @@ const financialReportConfig = {
     'INVESTMENT(ALL TYPES)',
     'RETURNED AGAINST ALL CONDITION',
     'SELF TRANSFER',
-    'CASH WITHDRAWAL'
+    'CASH WITHDRAWAL',
+    'PHONE PAY CHARGES'
   ],
 
   // Main header categories for Credit (C)
