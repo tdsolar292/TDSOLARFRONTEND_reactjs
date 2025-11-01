@@ -377,6 +377,18 @@ const FinancialReports = () => {
   const handleExportExcel = () => { exportFinancialDataToExcel({ rows: allData, user, filters }); };
 
   const handleEdit = (item) => {
+    // Check if operation is allowed: NOT verified OR (verified AND admin)
+    const isAllowed = !item.isVerified || (item.isVerified && isAdmin);
+    
+    if (!isAllowed) {
+      setToast({ 
+        show: true, 
+        message: 'Cannot edit verified records. Only admins can edit verified records.', 
+        variant: 'danger' 
+      });
+      return;
+    }
+    
     setEditingItem(item);
     setShowModal(true);
   };
@@ -387,6 +399,19 @@ const FinancialReports = () => {
 
   const handleDeleteConfirm = async () => {
     if (!deleteConfirm.item) return;
+    
+    // Check if operation is allowed: NOT verified OR (verified AND admin)
+    const isAllowed = !deleteConfirm.item.isVerified || (deleteConfirm.item.isVerified && isAdmin);
+    
+    if (!isAllowed) {
+      setDeleteConfirm({ show: false, item: null });
+      setToast({ 
+        show: true, 
+        message: 'Cannot delete verified records. Only admins can delete verified records.', 
+        variant: 'danger' 
+      });
+      return;
+    }
     
     try {
       const url = `${config.MernBaseURL}/financialData/delete/${deleteConfirm.item._id}`;
@@ -948,22 +973,27 @@ const FinancialReports = () => {
                       >
                         <i className="bi bi-eye"></i>
                       </button>
-                      <button 
-                        type="button" 
-                        className="btn-action btn-edit" 
-                        onClick={() => handleEdit(item)}
-                        title="Edit"
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                      <button 
-                        type="button" 
-                        className="btn-action btn-delete" 
-                        onClick={() => handleDeleteClick(item)}
-                        title="Delete"
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
+                      {/* Show edit/delete if: NOT verified OR (verified AND admin) */}
+                      {(!item.isVerified || (item.isVerified && isAdmin)) && (
+                        <>
+                          <button 
+                            type="button" 
+                            className="btn-action btn-edit" 
+                            onClick={() => handleEdit(item)}
+                            title="Edit"
+                          >
+                            <i className="bi bi-pencil-square"></i>
+                          </button>
+                          <button 
+                            type="button" 
+                            className="btn-action btn-delete" 
+                            onClick={() => handleDeleteClick(item)}
+                            title="Delete"
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
